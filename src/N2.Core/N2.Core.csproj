@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net6.0</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UserSecretsId>n2-core-0c368d89-5cb3-4451-9c68-b79e69920a09</UserSecretsId>
+
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Description>Core functionality for any application</Description>
+    <PackageVersion>1.0.0</PackageVersion>
+    <PackageLicenseExpression>AFL-3.0</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/gjkaal/n2-core</PackageProjectUrl>
+    <PackageId>n2.core</PackageId>
+    <PackageType>Dependency</PackageType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Configuration" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" />
+    <PackageReference Include="System.IO.Abstractions" />
+    <PackageReference Include="n2.core.abstractions" />
+  </ItemGroup>
+
+</Project>
