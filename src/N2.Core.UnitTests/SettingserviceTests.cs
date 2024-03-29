@@ -13,7 +13,8 @@ public class SettingserviceTests
         var fileSystem = new FileSystem();
         var currentFolder = Directory.GetCurrentDirectory();
         var directory = fileSystem.DirectoryInfo.New(currentFolder);
-        settings = new SettingsService(directory, null);
+        settings = new SettingsService(directory, null) {  SettingsFileName = "testsettings.json" };
+        settings.Reload<SettingserviceTests>();
     }
 
     [TestMethod]
