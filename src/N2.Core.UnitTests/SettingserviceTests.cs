@@ -34,7 +34,7 @@ public class SettingserviceTests
     }
 
     [TestMethod]
-    public void SettingserviceReadsFromUserSecrets()
+    public void SettingserviceReadsFromConfig()
     {
         var emailComServiceSettings = settings.GetConfigSettings<SampleServiceSettings>("EmailComService");
         Assert.AreEqual("SecretUser", emailComServiceSettings.UserName);
