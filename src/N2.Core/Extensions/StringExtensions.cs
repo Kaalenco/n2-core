@@ -1,8 +1,84 @@
 ﻿using System.Globalization;
 
 namespace N2.Core.Extensions;
+
+public static class RandomStringGenerator
+{
+    private static readonly Random random = new Random();
+
+    public static string Generate(int length)
+    {
+        // The characters that are allowed in the random string
+        // Characters that are easily confused are removed
+        const string chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
+        return new string(Enumerable.Repeat(chars, length)
+                     .Select(s => s[random.Next(s.Length)]).ToArray());
+    }
+}
+
 public static class StringExtensions
 {
+    public static int CheckBalance(this string input, char start, char end)
+    {
+        if (string.IsNullOrEmpty(input))
+        {
+            return 0;
+        }
+        var balance = 0;
+        for (var i = 0; i < input.Length; i++)
+        {
+            var c = input[i];
+            if (c == start)
+            {
+                balance++;
+            }
+            else if (c == end)
+            {
+                balance--;
+            }
+        }
+        return balance;
+    }
+
+    /// <summary>
+    /// Find a part of an HTML document using the tag name.
+    /// </summary>
+    public static string FindHtmlPart(string tagName, string content)
+    {
+        if (string.IsNullOrEmpty(content))
+        {
+            return string.Empty;
+        }
+        const StringComparison compare = StringComparison.InvariantCultureIgnoreCase;
+        const string endStartTag = ">";
+        var startTag = $"<{tagName}";
+        var endTag = $"</{tagName}>";
+        var start = content.IndexOf(startTag, compare);
+        if (start == -1) return string.Empty;
+        start = content.IndexOf(endStartTag, start, compare) + 1;
+        var end = content.IndexOf(endTag, start, compare);
+        if (end == -1) return string.Empty;
+        return content[start..end];
+    }
+
+    /// <summary>
+    /// Remove illegal characters from a file name.
+    /// The filename should not contain path information.
+    /// The extension on the filename is allowed.
+    /// </summary>
+    /// <param name="fileName"></param>
+    /// <returns></returns>
+    public static string SanitizeFileName(this string fileName)
+    {
+        if (string.IsNullOrEmpty(fileName))
+        {
+            return string.Empty;
+        }
+        return fileName
+            .Replace(' ', '-')
+            .ToLower(CultureInfo.InvariantCulture);
+    }
+
     public static int GetStableHashCode(this string str)
     {
         if (string.IsNullOrEmpty(str))

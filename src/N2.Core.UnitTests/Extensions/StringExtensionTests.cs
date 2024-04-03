@@ -1,6 +1,7 @@
 ﻿using N2.Core.Extensions;
 
 namespace N2.Core.UnitTests.Extensions;
+
 [TestClass]
 public class StringExtensionTests
 {
@@ -39,6 +40,17 @@ public class StringExtensionTests
     {
         var guidValue = Guid.Parse(value);
         var result = guidValue.ConvertToString();
+        Assert.AreEqual(expected, result);
+    }
+
+    [DataTestMethod]
+    [DataRow("(3x5)+(3*2)", '(', ')', 0)]
+    [DataRow("(3x5)+(3*2", '(', ')', 1)]
+    [DataRow("(3x5)+ 3*2)", '(', ')', -1)]
+    [DataRow("3x5)+(3*2", '(', ')', 0)]
+    public void CheckBalanceTest(string value, char start, char end, int expected)
+    {
+        var result = value.CheckBalance(start, end);
         Assert.AreEqual(expected, result);
     }
 }
