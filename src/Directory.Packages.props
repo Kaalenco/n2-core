@@ -9,7 +9,7 @@
     <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.1" />
     <PackageVersion Include="System.IO.Abstractions" Version="20.0.15" />
-    <PackageVersion Include="n2.core.abstractions" Version="1.0.0" />
+    <PackageVersion Include="n2.core.abstractions" Version="1.0.3" />
   </ItemGroup>
   <ItemGroup>
     <PackageVersion Include="Moq" Version="4.20.70" />

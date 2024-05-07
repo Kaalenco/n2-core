@@ -8,7 +8,7 @@
 
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Description>Core functionality for any application</Description>
-    <PackageVersion>1.0.1</PackageVersion>
+    <PackageVersion>1.0.3</PackageVersion>
     <PackageLicenseExpression>AFL-3.0</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/gjkaal/n2-core</PackageProjectUrl>
     <PackageId>n2.core</PackageId>
