@@ -62,6 +62,18 @@ public static class StringExtensions
     }
 
     /// <summary>
+    /// Parse a sttring to a DateTimeOffset and convert it to local time.
+    /// </summary>
+    /// <param name="input">The string containing a date and time</param>
+    /// <param name="format">The formatter to compensate for the expected string value</param>
+    /// <returns>A date time, relative to UTC</returns>
+    public static DateTimeOffset ParseStringToLocalTime(this string input, IFormatProvider format)
+    {
+        var dateTimeOffset = DateTimeOffset.Parse(input, format);
+        return dateTimeOffset.AddHours(dateTimeOffset.Offset.Hours);
+    }
+
+    /// <summary>
     /// Remove illegal characters from a file name.
     /// The filename should not contain path information.
     /// The extension on the filename is allowed.
