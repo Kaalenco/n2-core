@@ -64,8 +64,9 @@ public class StringExtensionTests
     public void ConvertToDateTime_Should_ReturnDateTime(
         string value, string expected)
     {
-        var f = CultureInfo.InvariantCulture;
-        var result = value.ParseStringToLocalTime(f);
+        var parsedOffset = value.ParseStringToLocalTime(CultureInfo.InvariantCulture);
+        var result = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(parsedOffset.DateTime, "W. Europe Standard Time");
+
         Assert.AreEqual(expected, result.ToString("s"));
     }
 }
