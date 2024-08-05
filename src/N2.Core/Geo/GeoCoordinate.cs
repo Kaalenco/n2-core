@@ -131,7 +131,7 @@ public sealed class GeoCoordinate : IEquatable<GeoCoordinate>
         {
             if (value < 0.0)
                 throw new ArgumentOutOfRangeException(nameof(HorizontalAccuracy), "Argument must be non negative");
-            _horizontalAccuracy = value == 0.0 ? double.NaN : value;
+            _horizontalAccuracy = value <= 0.0 ? double.NaN : value;
         }
     }
 
@@ -214,7 +214,7 @@ public sealed class GeoCoordinate : IEquatable<GeoCoordinate>
         {
             if (value < 0.0)
                 throw new ArgumentOutOfRangeException("VerticalAccuracy", "Argument must be non negative");
-            _verticalAccuracy = value == 0.0 ? double.NaN : value;
+            _verticalAccuracy = value <= 0.0 ? double.NaN : value;
         }
     }
     /// <summary>

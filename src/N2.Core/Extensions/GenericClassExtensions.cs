@@ -10,6 +10,8 @@ public static class GenericClassExtensions
     };
 
     public static TTarget? CopyFrom<TSource, TTarget>(this TTarget t, TSource s)
+        where TTarget : class
+        where TSource : class
     {
         if (t == null)
         {
