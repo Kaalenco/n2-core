@@ -15,6 +15,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - uses: Firenza/secrets-to-env@v1.3.0
+      name: Set secrets as environment variables
+      with:
+        secrets: ${{ toJSON(secrets) }}
+        secret_filter_regex: ENV_*
     - uses: actions/checkout@v4
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
