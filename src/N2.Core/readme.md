@@ -1,4 +1,6 @@
 ﻿# N2.Core
 
-Generic core utilities for any project
+[![.NET Build and test](https://github.com/Kaalenco/n2-core/actions/workflows/dotnet.yml/badge.svg)](https://github.com/Kaalenco/n2-core/actions/workflows/dotnet.yml)
+
+Generic core utilities for any project.
 
