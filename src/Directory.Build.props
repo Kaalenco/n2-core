@@ -15,13 +15,12 @@
     <AnalysisLevel>latest</AnalysisLevel>
     <AnalysisMode>All</AnalysisMode>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <Authors>GJH-Kaal</Authors>
     <Title>N2-Core</Title>
-    <Company>GJH-Kaal</Company>
+    <Company>Kaalenco</Company>
     <Copyright>(c) 2024 - rights reserved</Copyright>
-    <Product>N2.Core</Product>
+    <Product>N2.Core for NET8.0</Product>
     <ProductName>N2 Core libraries</ProductName>
-    <ProductVersion>1.0.0</ProductVersion>
+    <ProductVersion>1.0.1</ProductVersion>
     <LangVersion>12</LangVersion>
   </PropertyGroup>
 

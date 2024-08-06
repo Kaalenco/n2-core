@@ -2,20 +2,6 @@
 
 namespace N2.Core.Extensions;
 
-public static class RandomStringGenerator
-{
-    private static readonly Random random = new Random();
-
-    public static string Generate(int length)
-    {
-        // The characters that are allowed in the random string
-        // Characters that are easily confused are removed
-        const string chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
-        return new string(Enumerable.Repeat(chars, length)
-                     .Select(s => s[random.Next(s.Length)]).ToArray());
-    }
-}
-
 public static class StringExtensions
 {
     public static int CheckBalance(this string input, char start, char end)
@@ -86,6 +72,7 @@ public static class StringExtensions
         {
             return string.Empty;
         }
+#pragma warning disable CA1308 // Normalize strings to uppercase
         return fileName
             .Replace(' ', '-')
             .ToLower(CultureInfo.InvariantCulture);

@@ -55,4 +55,17 @@ public class SettingserviceTests
         Assert.AreEqual(-1, timeout);
     }
 
+    [TestMethod]
+    public void SettingServiceReturnsValueFromEnvironment()
+    {
+        var secret = settings.GetConfigSettings<StringValue>("Env:Secret");
+        Assert.AreEqual("NotSoSecret", secret.Value);
+    }
+
+    private sealed class StringValue
+    {
+        public string Value { get; set; } = string.Empty;
+    }
 }
+
+

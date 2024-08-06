@@ -59,6 +59,7 @@ public class SettingsService : ISettingsService
             var c = DirectoryRoot.FullName;
             return new ConfigurationBuilder()
                 .SetBasePath(c)
+                .AddEnvironmentVariables()
                 .AddJsonFile(SettingsFileName, true)
                 .AddUserSecrets<T>()
                 .Build();
