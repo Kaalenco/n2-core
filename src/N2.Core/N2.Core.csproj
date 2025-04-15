@@ -1,0 +1,46 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+
+    <Title>N2-Core</Title>
+    <Company>Kaalenco</Company>
+    <Copyright>(c) 2025 - rights reserved</Copyright>
+    <Authors>gjkaal</Authors>
+    <Description>Core functionality for any application</Description>
+    <IncludeSymbols>False</IncludeSymbols>
+    <PackageVersion>1.1.0</PackageVersion>
+    <PackageLicenseExpression>AFL-3.0</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/kaalenco/n2-core</PackageProjectUrl>
+    <PackageId>N2.Core</PackageId>
+    <PackageReadmeFile>readme.md</PackageReadmeFile>
+    <PackageType>Dependency</PackageType>
+
+    <RootNamespace>N2.Core</RootNamespace>
+    <UserSecretsId>N2-Core-0c368d89-5cb3-4451-9c68-b79e69920a09</UserSecretsId>
+
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="readme.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.4" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.4" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.4" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.4" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.4" />
+    <PackageReference Include="System.IO.Abstractions" Version="22.0.13" />
+    <PackageReference Include="n2.core.abstractions" Version="1.1.0" />
+  </ItemGroup>
+
+</Project>
