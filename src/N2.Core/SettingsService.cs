@@ -1,8 +1,8 @@
 ﻿using System.IO.Abstractions;
 
-using Dpi.Repository.Exceptions;
-
 using Microsoft.Extensions.Configuration;
+
+using N2.Core.Exceptions;
 
 namespace N2.Core;
 
@@ -24,8 +24,8 @@ public class SettingsService : ISettingsService
 
     public SettingsService()
     {
-        var fileSystem = new FileSystem();
-        var currentFolder = Directory.GetCurrentDirectory();
+        FileSystem fileSystem = new();
+        string currentFolder = Directory.GetCurrentDirectory();
         exceptionFactory = new N2CoreExceptionFactory();
         DirectoryRoot = fileSystem.DirectoryInfo.New(currentFolder);
         Configuration = LoadConfiguration<SettingsService>();
@@ -58,7 +58,7 @@ public class SettingsService : ISettingsService
         }
         else
         {
-            var c = DirectoryRoot.FullName;
+            string c = DirectoryRoot.FullName;
             return new ConfigurationBuilder()
                 .SetBasePath(c)
                 .AddEnvironmentVariables()
@@ -70,14 +70,14 @@ public class SettingsService : ISettingsService
 
     public TConfig GetConfigSettings<TConfig>(string sectionName) where TConfig : class, new()
     {
-        var settings = new TConfig();
+        TConfig settings = new();
         Configuration.GetSection(sectionName).Bind(settings);
         return settings;
     }
 
     public TConfig GetConfigSettings<TConfig>() where TConfig : class, new()
     {
-        var sectionName = typeof(TConfig).Name ?? throw new ConfigurationException("Type name not found.");
+        string sectionName = typeof(TConfig).Name ?? throw new ConfigurationException("Type name not found.");
         return GetConfigSettings<TConfig>(sectionName);
     }
 

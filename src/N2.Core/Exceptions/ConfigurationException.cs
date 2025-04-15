@@ -1,4 +1,4 @@
-﻿namespace Dpi.Repository.Exceptions;
+﻿namespace N2.Core.Exceptions;
 
 public class ConfigurationException : N2CoreException
 {

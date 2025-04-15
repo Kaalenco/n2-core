@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace Dpi.Repository.Exceptions;
+namespace N2.Core.Exceptions;
 
 public interface IExceptionFactory
 {

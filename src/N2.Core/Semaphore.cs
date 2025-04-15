@@ -1,11 +1,11 @@
 ﻿namespace N2.Core;
 
-public class Semafore
+public class Semaphore
 {
     private int count;
     private readonly object lockObject = new();
 
-    public Semafore(int count)
+    public Semaphore(int count)
     {
         this.count = count;
     }

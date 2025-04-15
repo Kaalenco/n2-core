@@ -1,4 +1,4 @@
-﻿namespace Dpi.Repository.Exceptions;
+﻿namespace N2.Core.Exceptions;
 
 public class OperationException : N2CoreException
 {
