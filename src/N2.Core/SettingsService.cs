@@ -24,8 +24,8 @@ public class SettingsService : ISettingsService
 
     public SettingsService()
     {
-        FileSystem fileSystem = new();
-        string currentFolder = Directory.GetCurrentDirectory();
+        var fileSystem = new FileSystem();
+        var currentFolder = Directory.GetCurrentDirectory();
         exceptionFactory = new N2CoreExceptionFactory();
         DirectoryRoot = fileSystem.DirectoryInfo.New(currentFolder);
         Configuration = LoadConfiguration<SettingsService>();
@@ -58,7 +58,7 @@ public class SettingsService : ISettingsService
         }
         else
         {
-            string c = DirectoryRoot.FullName;
+            var c = DirectoryRoot.FullName;
             return new ConfigurationBuilder()
                 .SetBasePath(c)
                 .AddEnvironmentVariables()
@@ -70,14 +70,14 @@ public class SettingsService : ISettingsService
 
     public TConfig GetConfigSettings<TConfig>(string sectionName) where TConfig : class, new()
     {
-        TConfig settings = new();
+        var settings = new TConfig();
         Configuration.GetSection(sectionName).Bind(settings);
         return settings;
     }
 
     public TConfig GetConfigSettings<TConfig>() where TConfig : class, new()
     {
-        string sectionName = typeof(TConfig).Name ?? throw new ConfigurationException("Type name not found.");
+        var sectionName = typeof(TConfig).Name ?? throw new ConfigurationException("Type name not found.");
         return GetConfigSettings<TConfig>(sectionName);
     }
 

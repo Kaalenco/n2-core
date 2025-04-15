@@ -1,0 +1,15 @@
+﻿{
+    "EmailComService": {
+        "SenderAddress": "DoNotReply@mydomain.com",
+        "ACSConnectionString": "endpoint=https://acs-weu.europe.communication.azure.com/;accesskey=y==",
+        "Id": "/subscriptions",
+        "Name": "email",
+        "UserName": "SecretUser"
+    },
+    "Jwt": {
+        "Issuer": "http://localhost:8080",
+        "Audience": "http://localhost:8080",
+        "Secret": "create-your-own-secret",
+        "TokenLifeTime": "-1"
+    }
+}
