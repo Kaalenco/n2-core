@@ -13,7 +13,7 @@
     <Authors>gjkaal</Authors>
     <Description>Core functionality for any application</Description>
     <IncludeSymbols>False</IncludeSymbols>
-    <PackageVersion>1.1.1</PackageVersion>
+    <PackageVersion>1.1.3-pre-0417-a</PackageVersion>
     <PackageLicenseExpression>AFL-3.0</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/kaalenco/n2-core</PackageProjectUrl>
     <PackageId>N2.Core</PackageId>
@@ -40,7 +40,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.4" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.4" />
     <PackageReference Include="System.IO.Abstractions" Version="22.0.13" />
-    <PackageReference Include="n2.core.abstractions" Version="1.1.0" />
+    <PackageReference Include="n2.core.abstractions" Version="1.1.3-pre-0417-c" />
   </ItemGroup>
 
 </Project>

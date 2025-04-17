@@ -4,7 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <NoWarn>CA1515;CS1591</NoWarn>
+    <NoWarn>CA1515;CS1591;CA2007</NoWarn>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
     <UserSecretsId>aspnet-BlazorAppOne-0c368d89-5cb3-4451-9c68-b79e69920a09</UserSecretsId>
@@ -17,7 +17,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.4" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.4" />
     <PackageReference Include="System.IO.Abstractions" Version="22.0.13" />
-    <PackageReference Include="n2.core.abstractions" Version="1.1.0" />
+    <PackageReference Include="n2.core.abstractions" Version="1.1.3-pre-0417-c" />
   </ItemGroup>
 
   <ItemGroup>

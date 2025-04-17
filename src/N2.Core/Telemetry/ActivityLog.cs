@@ -1,8 +1,8 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 
 namespace N2.Core.Telemetry;
 
-// Using the IActivityLogger interface from the Kaalenco.Common.Contracts namespace This class is a
+// Using the IActivityLogger interface from the N2.Core namespace This class is a
 // facade and uses the OpenTelemetry API.
 
 /// <summary>
