@@ -13,7 +13,7 @@
     <Authors>gjkaal</Authors>
     <Description>Core functionality for any application</Description>
     <IncludeSymbols>False</IncludeSymbols>
-    <PackageVersion>1.2.0-pre-0418-a</PackageVersion>
+    <PackageVersion>1.2.0-pre-0424-a</PackageVersion>
     <PackageLicenseExpression>AFL-3.0</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/kaalenco/n2-core</PackageProjectUrl>
     <PackageId>N2.Core</PackageId>

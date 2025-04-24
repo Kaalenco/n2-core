@@ -1,4 +1,4 @@
-﻿using System.IO.Abstractions;
+using System.IO.Abstractions;
 using System.Security.Cryptography;
 
 namespace N2.Core.Helpers;
@@ -11,7 +11,8 @@ public static class FileHelpers
 
         if (fileInfo.Exists)
         {
-            return ComputeSha384Hash(fileInfo.FullName);
+            using Stream stream = fileInfo.OpenRead();
+            return ComputeSha384Hash(stream);
         }
         else
         {
@@ -19,16 +20,20 @@ public static class FileHelpers
         }
     }
 
-    public static string ComputeSha384Hash(string filePath)
+    public static string ComputeSha384Hash(IFileInfoFactory fileInfoFactory, string filePath)
     {
-        using (FileStream stream = File.OpenRead(filePath))
+        ArgumentNullException.ThrowIfNull(fileInfoFactory);
+        IFileInfo fileInfo = fileInfoFactory.New(filePath);
+        return ComputeSha384Hash(fileInfo);
+    }
+
+    public static string ComputeSha384Hash(Stream stream)
+    {
+        using (SHA384 sha384 = SHA384.Create())
         {
-            using (SHA384 sha384 = SHA384.Create())
-            {
-                byte[] hashBytes = sha384.ComputeHash(stream);
-                return Convert.ToHexString(hashBytes)
-                    .ToUpperInvariant();
-            }
+            byte[] hashBytes = sha384.ComputeHash(stream);
+            return Convert.ToHexString(hashBytes)
+                .ToUpperInvariant();
         }
     }
 }

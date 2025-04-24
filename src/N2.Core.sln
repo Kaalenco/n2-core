@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "N2.Core", "N2.Core\N2.Core.
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{26977690-0F03-43C0-98CF-17C7ACE55BD8}"
 	ProjectSection(SolutionItems) = preProject
+		..\.github\copilot-instructions.md = ..\.github\copilot-instructions.md
+		csharp-codingstyle.md = csharp-codingstyle.md
 		Directory.Build.props = Directory.Build.props
 		..\LICENSE = ..\LICENSE
 		nuget.config = nuget.config

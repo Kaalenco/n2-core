@@ -1,4 +1,4 @@
-﻿namespace N2.Core;
+namespace N2.Core;
 
 public class FakeTextService : ITextService
 {

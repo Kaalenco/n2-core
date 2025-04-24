@@ -1,6 +1,5 @@
-﻿namespace N2.Core.Extensions;
+namespace N2.Core.Extensions;
 
-#pragma warning disable CA5394 // Mark members as static
 public static class RandomStringGenerator
 {
     private static readonly Random random = new();
@@ -13,10 +12,11 @@ public static class RandomStringGenerator
     /// </remarks>
     public static string Generate(int length)
     {
-        // The characters that are allowed in the random string
-        // Characters that are easily confused are removed
+        // The characters that are allowed in the random string Characters
+        // that are easily confused are not part of the set.
         const string chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
-        return new string(Enumerable.Repeat(chars, length)
-                     .Select(s => s[random.Next(s.Length)]).ToArray());
+        return new string([..
+            Enumerable.Repeat(chars, length)
+            .Select(s => s[random.Next(s.Length)])]);
     }
 }
