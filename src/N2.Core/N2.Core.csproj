@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
@@ -13,7 +13,7 @@
     <Authors>gjkaal</Authors>
     <Description>Core functionality for any application</Description>
     <IncludeSymbols>False</IncludeSymbols>
-    <PackageVersion>1.2.0-pre-0424-a</PackageVersion>
+    <PackageVersion>1.2.0-pre-0602-a</PackageVersion>
     <PackageLicenseExpression>AFL-3.0</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/kaalenco/n2-core</PackageProjectUrl>
     <PackageId>N2.Core</PackageId>
@@ -39,8 +39,9 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.4" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.4" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.4" />
+    <PackageReference Include="System.Identitymodel.Tokens.Jwt" Version="8.11.0" />
     <PackageReference Include="System.IO.Abstractions" Version="22.0.13" />
-    <PackageReference Include="n2.core.abstractions" Version="1.2.0" />
+    <PackageReference Include="n2.core.abstractions" Version="1.3.4" />
   </ItemGroup>
 
 </Project>

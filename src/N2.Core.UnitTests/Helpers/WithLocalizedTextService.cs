@@ -35,7 +35,7 @@ public class WithLocalizedTextService : IDisposable
         string expectedValue = "Hello"; // Value from Resources.resx
 
         // Act
-        string actualValue = localizedTextService.GetGlobalText(key);
+        string actualValue = localizedTextService.GT(key);
 
         // Assert
         Assert.AreEqual(expectedValue, actualValue);
@@ -49,7 +49,7 @@ public class WithLocalizedTextService : IDisposable
         string expectedValue = $"[Missing: {key}]";
 
         // Act
-        string actualValue = localizedTextService.GetGlobalText(key);
+        string actualValue = localizedTextService.GT(key);
 
         // Assert
         Assert.AreEqual(expectedValue, actualValue);
@@ -65,7 +65,7 @@ public class WithLocalizedTextService : IDisposable
         // Set the culture to Dutch
         localizedTextService.CurrentCulture = new CultureInfo("nl-nl");
         // Act
-        string actualValue = localizedTextService.GetGlobalText(key);
+        string actualValue = localizedTextService.GT(key);
 
         // Assert
         Assert.AreEqual(expectedValue, actualValue);
@@ -80,7 +80,7 @@ public class WithLocalizedTextService : IDisposable
         string expectedValue = "Welcome to our application!"; // Value from Resources.resx
 
         // Act
-        string actualValue = localizedTextService.GetText(pageContext, key);
+        string actualValue = localizedTextService.GT(pageContext, key);
 
         // Assert
         Assert.AreEqual(expectedValue, actualValue);
@@ -98,7 +98,7 @@ public class WithLocalizedTextService : IDisposable
         localizedTextService.CurrentCulture = new CultureInfo("nl-be");
 
         // Act
-        string actualValue = localizedTextService.GetText(pageContext, key);
+        string actualValue = localizedTextService.GT(pageContext, key);
 
         // Assert
         Assert.AreEqual(expectedValue, actualValue);
