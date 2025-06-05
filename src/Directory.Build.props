@@ -3,7 +3,7 @@
   <PropertyGroup>
     <WarningLevel>6</WarningLevel>
     <WarningsAsErrors></WarningsAsErrors>
-    <NoWarn>S1135;RCS1021;CA1308;CS1591;CA5349;CA1002;CA1819;CA2007;CA1859;CA1812;CA5394;S2094;CA1707;IDE0290;S125;RMG020;IDE0060</NoWarn>
+    <NoWarn>S1135;RCS1021;CA1055;CA1308;CS1591;CA5349;CA1002;CA1819;CA2007;CA1859;CA1812;CA5394;S2094;CA1707;IDE0290;S125;RMG020;IDE0060</NoWarn>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -18,7 +18,7 @@
     <Title>N2-Core</Title>
     <Company>Kaalenco</Company>
     <Copyright>(c) 2025 - rights reserved</Copyright>
-    <Product>N2.Core for NET8.0</Product>
+    <Product>N2.Core</Product>
     <ProductName>N2 Core libraries</ProductName>
     <ProductVersion>1.1.0</ProductVersion>
     <LangVersion>12</LangVersion>

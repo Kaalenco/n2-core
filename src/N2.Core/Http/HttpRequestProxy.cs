@@ -13,12 +13,12 @@ public class HttpRequestProxy : IHttpRequest
     public HttpRequestProxy(HttpRequest baseRequest)
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
     {
-        ArgumentNullException.ThrowIfNull(baseRequest);
+        Contract.NotNull(baseRequest, nameof(baseRequest));
         this.baseRequest = baseRequest;
     }
     public string? ContentType { get => baseRequest.ContentType; set { baseRequest.ContentType = value; } }
     public long? ContentLength { get => baseRequest.ContentLength; set { baseRequest.ContentLength = value; } }
-    public PipeReader BodyReader => baseRequest.BodyReader;
+    public PipeReader BodyReader => PipeReader.Create(baseRequest.Body);
     public Stream Body { get => baseRequest.Body; set { baseRequest.Body = value; } }
 
     public ReadOnlyDictionary<string, string> Headers
@@ -39,3 +39,4 @@ public class HttpRequestProxy : IHttpRequest
 
     public Task<string> ReadAsStringAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
 }
+

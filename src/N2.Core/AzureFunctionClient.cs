@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using System.Text.Json;
 
 namespace N2.Core;
@@ -38,7 +38,18 @@ public class AzureFunctionClient : IDisposable, IAzureFunctionClient
             activityLogger.Tag("Error", $"Failed to get response from {url}. Status code: {response.StatusCode}");
             return default;
         }
+
+        if (response.Content == null)
+        {
+            activityLogger.Tag("Error", $"No content in response from {url}");
+            return default;
+        }
+
+#if NETSTANDARD
+        string result = await response.Content.ReadAsStringAsync();
+#else
         string result = await response.Content.ReadAsStringAsync(cancellationToken);
+#endif
         if (string.IsNullOrEmpty(content))
         {
             activityLogger.Tag("Warning", $"Empty response from {url}");

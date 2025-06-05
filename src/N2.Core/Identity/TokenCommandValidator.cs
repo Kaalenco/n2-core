@@ -1,5 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
-
 using N2.Core.Exceptions;
 
 namespace N2.Core.Identity;
@@ -13,9 +11,9 @@ public class TokenRequestValidator : IRuntimeValidator<TokenRequest>
     /// Validates the TokenCommand.
     /// </summary>
     /// <param name="item">The item.</param>
-    public void Validate([NotNull] TokenRequest item)
+    public void Validate(TokenRequest item)
     {
-        ArgumentNullException.ThrowIfNull(item);
+        Contract.NotNull(item, nameof(item));
         Token? content = item.Value;
         if (content == null)
         {

@@ -1,18 +1,21 @@
-﻿namespace N2.Core.Entity;
+using N2.Core.Commands;
+using N2.Core.Exceptions;
 
-public class EntityConnectionException : Exception
+namespace N2.Core.Entity;
+
+public class EntityConnectionException : N2CoreException
 {
     public int ErrorCode { get; protected set; } = 500;
 
-    public EntityConnectionException(string message) : base(message)
+    public EntityConnectionException(string message) : base(ResponseStatus.ServiceUnavailable, message)
     {
     }
 
-    public EntityConnectionException()
+    public EntityConnectionException() : base(ResponseStatus.ServiceUnavailable)
     {
     }
 
-    public EntityConnectionException(string message, Exception innerException) : base(message, innerException)
+    public EntityConnectionException(string message, Exception innerException) : base(ResponseStatus.ServiceUnavailable, message, innerException)
     {
     }
 }

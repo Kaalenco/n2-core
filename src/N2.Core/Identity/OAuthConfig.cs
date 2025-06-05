@@ -18,7 +18,7 @@ public class OAuthConfig
     /// <param name="configuration">The configuration.</param>
     public OAuthConfig(IConfiguration configuration)
     {
-        ArgumentNullException.ThrowIfNull(configuration);
+        Contract.NotNull(configuration, nameof(configuration));
         Secret = configuration["OAuthConfig:Secret"];
         Issuer = configuration["OAuthConfig:Issuer"];
         string? timeout = configuration["OAuthConfig:TokenTimeoutInMinutes"];

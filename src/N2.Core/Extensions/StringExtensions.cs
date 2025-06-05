@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 
 namespace N2.Core.Extensions;
 
@@ -10,10 +10,10 @@ public static class StringExtensions
         {
             return 0;
         }
-        var balance = 0;
-        for (var i = 0; i < input.Length; i++)
+        int balance = 0;
+        for (int i = 0; i < input.Length; i++)
         {
-            var c = input[i];
+            char c = input[i];
             if (c == start)
             {
                 balance++;
@@ -37,14 +37,26 @@ public static class StringExtensions
         }
         const StringComparison compare = StringComparison.InvariantCultureIgnoreCase;
         const string endStartTag = ">";
-        var startTag = $"<{tagName}";
-        var endTag = $"</{tagName}>";
-        var start = content.IndexOf(startTag, compare);
-        if (start == -1) return string.Empty;
+        string startTag = $"<{tagName}";
+        string endTag = $"</{tagName}>";
+        int start = content.IndexOf(startTag, compare);
+        if (start == -1)
+        {
+            return string.Empty;
+        }
+
         start = content.IndexOf(endStartTag, start, compare) + 1;
-        var end = content.IndexOf(endTag, start, compare);
-        if (end == -1) return string.Empty;
+        int end = content.IndexOf(endTag, start, compare);
+        if (end == -1)
+        {
+            return string.Empty;
+        }
+
+#if NETSTANDARD2_0
+        return content.Substring(start, end - start);
+#else
         return content[start..end];
+#endif
     }
 
     /// <summary>
@@ -55,7 +67,7 @@ public static class StringExtensions
     /// <returns>A date time, relative to UTC</returns>
     public static DateTimeOffset ParseStringToLocalTime(this string input, IFormatProvider format)
     {
-        var dateTimeOffset = DateTimeOffset.Parse(input, format);
+        DateTimeOffset dateTimeOffset = DateTimeOffset.Parse(input, format);
         return dateTimeOffset.AddHours(dateTimeOffset.Offset.Hours);
     }
 
@@ -93,7 +105,10 @@ public static class StringExtensions
             {
                 hash1 = ((hash1 << 5) + hash1) ^ str[i];
                 if (i == str.Length - 1 || str[i + 1] == '\0')
+                {
                     break;
+                }
+
                 hash2 = ((hash2 << 5) + hash2) ^ str[i + 1];
             }
 
@@ -107,8 +122,15 @@ public static class StringExtensions
         {
             return string.Empty;
         }
+
+#if NETSTANDARD2_0
+        var rightText = value.Substring(1);
+#else
+        string rightText = value[1..];
+#endif
+
 #pragma warning disable CA1308 // Normalize strings to uppercase
-        return char.ToUpper(value[0], CultureInfo.InvariantCulture) + value[1..].ToLowerInvariant();
+        return char.ToUpper(value[0], CultureInfo.InvariantCulture) + rightText.ToLowerInvariant();
 #pragma warning restore CA1308 // Normalize strings to uppercase
     }
 
@@ -122,7 +144,12 @@ public static class StringExtensions
         {
             return value;
         }
+
+#if NETSTANDARD2_0
+        return value.Substring(0, length);
+#else
         return value[..length];
+#endif
     }
 
     public static Guid ConvertToGuid(this string value)
@@ -131,18 +158,18 @@ public static class StringExtensions
         {
             return Guid.Empty;
         }
-        if (Guid.TryParse(value, out var result))
+        if (Guid.TryParse(value, out Guid result))
         {
             return result;
         }
 
         // Convert the string to a guid, if it fits
-        var byteData = value.ToUpperInvariant().Select(c => (byte)c).ToArray();
+        byte[] byteData = value.ToUpperInvariant().Select(c => (byte)c).ToArray();
         if (byteData.Length > 11)
         {
             byteData = byteData.Take(11).ToArray();
         }
-        var guidData = new byte[16];
+        byte[] guidData = new byte[16];
         byteData.CopyTo(guidData, 0);
         guidData[15] = 0xff;
         guidData[14] = 0x00;
@@ -158,8 +185,8 @@ public static class StringExtensions
         {
             return string.Empty;
         }
-        var bytes = value.ToByteArray();
-        var length = bytes[11];
+        byte[] bytes = value.ToByteArray();
+        byte length = bytes[11];
         if (bytes[12] == 0xda && bytes[13] == 0xda && bytes[14] == 0x00 && bytes[15] == 0xff)
         {
             return new string(bytes.Take(length).Select(b => (char)b).ToArray());

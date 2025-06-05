@@ -1,4 +1,4 @@
-﻿
+
 using N2.Core;
 using N2.Core.Identity;
 
@@ -27,4 +27,5 @@ public class AnonymousUserProfile : IUserContext
     public bool CanPublish() => false;
     public bool CanModifyRights() => false;
     public bool CanDesign() => false;
+    public bool IsAdmin() => false;
 }

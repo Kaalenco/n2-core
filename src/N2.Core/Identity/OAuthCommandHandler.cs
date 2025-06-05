@@ -35,7 +35,7 @@ public class OAuthCommandHandler : BaseCommandHandler<TokenRequest, TokenRespons
         Contract.NotNull(config.Issuer, nameof(config.Issuer));
 
         _config = config;
-        _secret = Convert.FromBase64String(config.Secret);
+        _secret = Convert.FromBase64String(config.Secret!);
         _identityManager = identityManager;
     }
 
@@ -64,7 +64,7 @@ public class OAuthCommandHandler : BaseCommandHandler<TokenRequest, TokenRespons
             { "logoff",  HandleLogoff }
         };
 
-        if (handlers.TryGetValue(token.GrantType, out Func<Token, Task<Guid>>? value))
+        if (handlers.TryGetValue(token!.GrantType, out Func<Token, Task<Guid>>? value))
         {
             sid = await value.Invoke(token);
         }
@@ -142,7 +142,7 @@ public class OAuthCommandHandler : BaseCommandHandler<TokenRequest, TokenRespons
     {
         if (string.IsNullOrEmpty(token.AccessToken))
         {
-            throw new UnauthorizedException("HTTP401");
+            throw new UnauthorizedException("No Accesstoken");
         }
         string decoded = Encoding.UTF8.GetString(Convert.FromBase64String(token.AccessToken));
         string[] user = decoded.Split(':');
@@ -165,18 +165,18 @@ public class OAuthCommandHandler : BaseCommandHandler<TokenRequest, TokenRespons
     {
         if (string.IsNullOrEmpty(token.ClientId) || string.IsNullOrEmpty(token.Scope) || string.IsNullOrEmpty(token.ClientSecret))
         {
-            throw new UnauthorizedException("HTTP401");
+            throw new UnauthorizedException("No Credentials");
         }
 
-        string secret = await _identityManager.GetUserSecret(token.ClientId, token.Scope);
+        string secret = await _identityManager.GetUserSecret(token.ClientId!, token.Scope!);
         if (string.IsNullOrEmpty(secret))
         {
-            throw new UnauthorizedException("HTTP404");
+            throw new UnauthorizedException("No Access");
         }
 
-        if (JwtTools.ValidateTOTP(DateTime.UtcNow, secret, token.ClientSecret, 10))
+        if (JwtTools.ValidateTOTP(DateTime.UtcNow, secret, token.ClientSecret!, 10))
         {
-            return await _identityManager.LogonUserWithSecret(token.ClientId, token.ClientSecret);
+            return await _identityManager.LogonUserWithSecret(token.ClientId!, token.ClientSecret!);
         }
         else
         {

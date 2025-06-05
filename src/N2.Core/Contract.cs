@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 
 using N2.Core.Exceptions;
 
@@ -19,11 +18,16 @@ namespace N2.Core
         /// </param>
         [Conditional("DEBUG")]
         [Conditional("CODECONTRACTS")]
-        public static void ValidName([NotNull] string? item)
+        public static void ValidName(string? item)
         {
             if (string.IsNullOrWhiteSpace(item))
             {
                 throw new ContractException("Value cannot be empty or only whitespace.");
+            }
+
+            if (item!.Length > 256)
+            {
+                throw new ContractException("Name is too long, maximum length is 256 characters.");
             }
 
             if (!(IsChar(item[0]) || (item[0] == '_')))
@@ -53,7 +57,7 @@ namespace N2.Core
         /// </param>
         [Conditional("DEBUG")]
         [Conditional("CODECONTRACTS")]
-        public static void NotNull([NotNull] object? item, string nameOfItem)
+        public static void NotNull(object? item, string nameOfItem)
         {
             if (item == null)
             {
@@ -78,7 +82,7 @@ namespace N2.Core
                 return false;
             }
 
-            check = check & 0b00100000;
+            check = check & 0b11011111;
             return check >= 65 && check <= 90;
         }
 

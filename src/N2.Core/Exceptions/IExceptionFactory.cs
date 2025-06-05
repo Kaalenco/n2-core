@@ -1,5 +1,3 @@
-﻿using System.Diagnostics.CodeAnalysis;
-
 namespace N2.Core.Exceptions;
 
 public interface IExceptionFactory
@@ -14,18 +12,12 @@ public interface IExceptionFactory
     UnauthorizedException UnauthorizedException { get; }
     ElementNotFoundException ElementNotFoundException(string name);
 
-    [DoesNotReturn]
     void ThrowInvalidOperationException(string message);
-    [DoesNotReturn]
     void ThrowCoreException();
-    [DoesNotReturn]
     void ThrowConnectionStringNotFound(string name);
-    [DoesNotReturn]
     void ThrowDirectoryNotFoundException(string name);
-    [DoesNotReturn]
     void ThrowElementNotFoundException(string name);
-    [DoesNotReturn]
     void ThrowUnauthorizedException(string message);
 
-    void ThrowIfNull([NotNull] object? obj);
+    void ThrowIfNull(object? obj);
 }

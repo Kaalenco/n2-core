@@ -1,5 +1,7 @@
+using System.Globalization;
 using System.IO.Abstractions;
 using System.Security.Cryptography;
+using System.Text;
 
 namespace N2.Core.Helpers;
 
@@ -7,7 +9,7 @@ public static class FileHelpers
 {
     public static string ComputeSha384Hash(this IFileInfo fileInfo)
     {
-        ArgumentNullException.ThrowIfNull(fileInfo);
+        Contract.NotNull(fileInfo, nameof(fileInfo));
 
         if (fileInfo.Exists)
         {
@@ -22,7 +24,7 @@ public static class FileHelpers
 
     public static string ComputeSha384Hash(IFileInfoFactory fileInfoFactory, string filePath)
     {
-        ArgumentNullException.ThrowIfNull(fileInfoFactory);
+        Contract.NotNull(fileInfoFactory, nameof(fileInfoFactory));
         IFileInfo fileInfo = fileInfoFactory.New(filePath);
         return ComputeSha384Hash(fileInfo);
     }
@@ -32,8 +34,19 @@ public static class FileHelpers
         using (SHA384 sha384 = SHA384.Create())
         {
             byte[] hashBytes = sha384.ComputeHash(stream);
-            return Convert.ToHexString(hashBytes)
+            return ToHexString(hashBytes)
                 .ToUpperInvariant();
         }
+    }
+
+    public static string ToHexString(this byte[] bytes)
+    {
+        Contract.NotNull(bytes, nameof(bytes));
+        var sb = new StringBuilder(bytes.Length * 2);
+        foreach (byte b in bytes)
+        {
+            sb.Append(b.ToString("X2", CultureInfo.InvariantCulture));
+        }
+        return sb.ToString();
     }
 }

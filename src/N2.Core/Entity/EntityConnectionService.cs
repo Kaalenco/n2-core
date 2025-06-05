@@ -1,6 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using System.IO.Abstractions;
+
+using Microsoft.Extensions.Configuration;
 
 namespace N2.Core.Entity;
 
@@ -17,15 +17,15 @@ public class EntityConnectionService : IConnectionStringService
 
     public EntityConnectionService()
     {
-        var fileSystem = new FileSystem();
-        var currentFolder = fileSystem.Directory.GetCurrentDirectory();
+        FileSystem fileSystem = new();
+        string currentFolder = fileSystem.Directory.GetCurrentDirectory();
         DirectoryRoot = fileSystem.DirectoryInfo.New(currentFolder);
         Configuration = LoadConfiguration<EntityConnectionService>();
     }
 
     public EntityConnectionService(IDirectoryInfo directory)
     {
-        ArgumentNullException.ThrowIfNull(directory);
+        Contract.NotNull(directory, nameof(directory));
         if (!directory.Exists)
         {
             throw new EntityConnectionException($"Directory not found: {directory.FullName}");
@@ -48,7 +48,7 @@ public class EntityConnectionService : IConnectionStringService
         }
         else
         {
-            var c = DirectoryRoot.FullName;
+            string c = DirectoryRoot.FullName;
             return new ConfigurationBuilder()
                 .SetBasePath(c)
                 .AddJsonFile(SettingsFileName, true)

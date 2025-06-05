@@ -1,10 +1,10 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 namespace N2.Core.Extensions;
 
 public static class GenericClassExtensions
 {
-    private static readonly JsonSerializerOptions options = new JsonSerializerOptions
+    private static readonly JsonSerializerOptions options = new()
     {
         WriteIndented = true
     };
@@ -24,34 +24,34 @@ public static class GenericClassExtensions
 
     public static void MapPropertyValuesByName<TSource, TTarget>(this TSource s, TTarget t)
     {
-        var sourceType = typeof(TSource);
-        var targetType = typeof(TTarget);
-        ArgumentNullException.ThrowIfNull(s);
-        ArgumentNullException.ThrowIfNull(t);
-        var sourceProperties = sourceType.GetProperties();
-        var targetProperties = targetType.GetProperties();
-        foreach (var sp in sourceProperties)
+        Type sourceType = typeof(TSource);
+        Type targetType = typeof(TTarget);
+        Contract.NotNull(s, nameof(s));
+        Contract.NotNull(t, nameof(t));
+        System.Reflection.PropertyInfo[] sourceProperties = sourceType.GetProperties();
+        System.Reflection.PropertyInfo[] targetProperties = targetType.GetProperties();
+        foreach (System.Reflection.PropertyInfo? sp in sourceProperties)
         {
             if (!sp.CanRead)
             {
                 continue;
             }
 
-            var tp = Array.Find(targetProperties, x => string.Equals(x.Name, sp.Name, StringComparison.OrdinalIgnoreCase));
+            System.Reflection.PropertyInfo? tp = Array.Find(targetProperties, x => string.Equals(x.Name, sp.Name, StringComparison.OrdinalIgnoreCase));
             if (tp != null)
             {
                 if (!tp.CanWrite)
                 {
                     continue;
                 }
-                var setMethod = tp.GetSetMethod();
+                System.Reflection.MethodInfo? setMethod = tp.GetSetMethod();
 #pragma warning disable RCS1146 // Use conditional access
                 if (setMethod == null || setMethod.IsPrivate || setMethod.IsFamily)
                 {
                     continue;
                 }
 #pragma warning restore RCS1146 // Use conditional access
-                var value = sp.GetValue(s);
+                object? value = sp.GetValue(s);
                 tp.SetValue(t, value);
             }
         }

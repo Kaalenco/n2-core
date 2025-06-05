@@ -162,7 +162,7 @@ public class WithHttpResult
         Assert.AreEqual("application/json", headers["Content-Type"].ToString());
         Assert.AreEqual(typeof(string).FullName, headers["X-Type"].ToString());
         Assert.AreEqual("Test message", headers["X-Message"].ToString());
-        Assert.AreEqual("W/\"123\"", headers["Etag"].ToString());
+        Assert.AreEqual("W/\"123\"", headers["X-AuditTag"].ToString());
         Assert.AreEqual("https://example.com/api/resource/123", headers["X-ReferenceUri"].ToString());
 
         // Verify WriteAsJsonAsync was called

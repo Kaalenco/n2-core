@@ -1,9 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;NET8.0;NET9.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <LangVersion>12</LangVersion>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
 
@@ -13,11 +14,10 @@
     <Authors>gjkaal</Authors>
     <Description>Core functionality for any application</Description>
     <IncludeSymbols>False</IncludeSymbols>
-    <PackageVersion>1.2.0-pre-0603-a</PackageVersion>
+    <PackageVersion>1.2.0-pre-0605-a</PackageVersion>
     <PackageLicenseExpression>AFL-3.0</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/kaalenco/n2-core</PackageProjectUrl>
     <PackageId>N2.Core</PackageId>
-    <PackageReadmeFile>readme.md</PackageReadmeFile>
     <PackageType>Dependency</PackageType>
 
     <RootNamespace>N2.Core</RootNamespace>
@@ -25,29 +25,30 @@
 
   </PropertyGroup>
 
-  <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
+  <PropertyGroup>
+    <PackageReadmeFile>readme.md</PackageReadmeFile>
+  </PropertyGroup>
 
   <ItemGroup>
     <None Include="readme.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.5" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.5" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.5">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
+    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.5" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.5" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.5" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.5" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="9.0.5" />
     <PackageReference Include="System.Identitymodel.Tokens.Jwt" Version="8.11.0" />
     <PackageReference Include="System.IO.Abstractions" Version="22.0.14" />
-    <PackageReference Include="N2.Core.Abstractions" Version="1.3.4" />
+    <PackageReference Include="N2.Core.Abstractions" Version="1.3.6" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="9.0.5" />
+  </ItemGroup>
+
+  <ItemGroup Condition="(('$(TargetFramework)'=='netstandard2.0') Or ('$(TargetFramework)'=='netstandard2.1'))">
   </ItemGroup>
 
 </Project>

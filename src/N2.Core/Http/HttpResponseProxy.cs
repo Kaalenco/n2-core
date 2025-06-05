@@ -10,19 +10,19 @@ public class HttpResponseProxy : IHttpResponse
     private readonly HttpResponse baseResponse;
     public HttpResponseProxy(HttpResponse baseResponse)
     {
-        ArgumentNullException.ThrowIfNull(baseResponse);
+        Contract.NotNull(baseResponse, nameof(baseResponse));
         this.baseResponse = baseResponse;
     }
 
     public string? ContentType { get => baseResponse.ContentType; set { baseResponse.ContentType = value; } }
     public long? ContentLength { get => baseResponse.ContentLength; set { baseResponse.ContentLength = value; } }
-    public PipeWriter BodyWriter => baseResponse.BodyWriter;
+    public PipeWriter BodyWriter => PipeWriter.Create(baseResponse.Body);
     public Stream Body { get => baseResponse.Body; set { baseResponse.Body = value; } }
     public Dictionary<string, string> Headers =>
         new(baseResponse.Headers.ToDictionary(kvp => kvp.Key.ToString(), kvp => kvp.Value.ToString()));
     public int StatusCode { get => baseResponse.StatusCode; set { baseResponse.StatusCode = value; } }
 
-    public void Clear() => baseResponse.Clear();
+    public void Clear() => baseResponse.Body.SetLength(0);
 
     public void ClearHeaders()
     {

@@ -74,7 +74,7 @@ public abstract class BaseCommandHandler<TQ, TA> : ICommandHandler<TQ, TA>
     /// <returns>A ResponseStatus.</returns>
     protected ResponseStatus Validate(TQ request)
     {
-        ArgumentNullException.ThrowIfNull(request);
+        Contract.NotNull(request, nameof(request));
         try
         {
             if (_validator != null)

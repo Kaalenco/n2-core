@@ -1,4 +1,4 @@
-﻿using System.IO.Abstractions;
+using System.IO.Abstractions;
 
 using Microsoft.Extensions.Configuration;
 
@@ -33,8 +33,9 @@ public class SettingsService : ISettingsService
 
     public SettingsService(IDirectoryInfo directory, IExceptionFactory? exceptionFactory)
     {
+        Contract.NotNull(directory, nameof(directory));
         this.exceptionFactory = exceptionFactory ?? new N2CoreExceptionFactory();
-        this.exceptionFactory.ThrowIfNull(directory);
+
         if (!directory.Exists)
         {
             this.exceptionFactory.ThrowDirectoryNotFoundException(directory.FullName);
@@ -59,13 +60,47 @@ public class SettingsService : ISettingsService
         else
         {
             string c = DirectoryRoot.FullName;
-            return new ConfigurationBuilder()
-                .SetBasePath(c)
-                .AddEnvironmentVariables()
-                .AddJsonFile(SettingsFileName, true)
-                .AddUserSecrets<T>()
-                .Build();
+            IConfigurationBuilder builder = new ConfigurationBuilder()
+                .SetBasePath(c);
+
+            AddEnvironmentVariables(builder, "ENV__");
+            builder.AddJsonFile(SettingsFileName, true);
+            builder.AddUserSecrets<T>();
+
+            return builder.Build();
         }
+    }
+
+    private static void AddEnvironmentVariables(IConfigurationBuilder builder, string startingWith)
+    {
+        Contract.NotNull(builder, nameof(builder));
+        Contract.NotNull(startingWith, nameof(startingWith));
+        Dictionary<string, string?> envVars = GetEnvironmentVariables(startingWith);
+        if (envVars.Count > 0)
+        {
+            builder.AddInMemoryCollection(envVars);
+        }
+    }
+
+    private static Dictionary<string, string?> GetEnvironmentVariables(string startingWith)
+    {
+        Contract.NotNull(startingWith, nameof(startingWith));
+        Dictionary<string, string?> envVars = [];
+
+        System.Collections.IDictionary items = Environment.GetEnvironmentVariables();
+        List<string> keys = items.Keys.Cast<string>()
+            .Where(key => key.StartsWith(startingWith, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+#pragma warning disable CA1307 // Normalize strings to uppercase
+        foreach (string key in keys)
+        {
+            if (items[key] is string value)
+            {
+                envVars.Add(key.Replace("__", ":"), value);
+            }
+        }
+#pragma warning restore CA1307 // Normalize strings to uppercase
+        return envVars;
     }
 
     public TConfig GetConfigSettings<TConfig>(string sectionName) where TConfig : class, new()
