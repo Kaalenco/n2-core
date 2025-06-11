@@ -13,16 +13,21 @@
     <Copyright>(c) 2025 - rights reserved</Copyright>
     <Authors>gjkaal</Authors>
     <Description>Core functionality for any application</Description>
-    <IncludeSymbols>False</IncludeSymbols>
-    <PackageVersion>1.2.0-pre-0605-a</PackageVersion>
-    <PackageLicenseExpression>AFL-3.0</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/kaalenco/n2-core</PackageProjectUrl>
+
+    <Product>N2.Core</Product>
+    <RootNamespace>N2.Core</RootNamespace>
+    <ProductName>N2 Core libraries</ProductName>
+    <ProductVersion>1.3.0</ProductVersion>
+
+    <Version>1.3.0</Version>
+
     <PackageId>N2.Core</PackageId>
     <PackageType>Dependency</PackageType>
+    <PackageVersion>1.3.7</PackageVersion>
+    <PackageLicenseExpression>AFL-3.0</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/kaalenco/n2-core</PackageProjectUrl>
 
-    <RootNamespace>N2.Core</RootNamespace>
     <UserSecretsId>N2-Core-0c368d89-5cb3-4451-9c68-b79e69920a09</UserSecretsId>
-
   </PropertyGroup>
 
   <PropertyGroup>
