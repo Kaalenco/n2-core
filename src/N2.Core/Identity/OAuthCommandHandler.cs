@@ -183,4 +183,14 @@ public class OAuthCommandHandler : BaseCommandHandler<TokenRequest, TokenRespons
             return Guid.Empty;
         }
     }
+
+    /// <summary>
+    /// Only token requests can be handled by this command handler.
+    /// </summary>
+    /// <param name="command"></param>
+    /// <returns></returns>
+    public override bool CanHandle(ICommandRequest command)
+    {
+        return command is TokenRequest;
+    }
 }

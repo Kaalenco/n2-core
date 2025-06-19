@@ -193,4 +193,95 @@ public static class StringExtensions
         }
         return value.ToString();
     }
+
+    public static bool IsEnum<T>(this string value, T enumValue) where T : struct
+    {
+        if (Enum.TryParse<T>(value, true, out T tValue))
+        {
+            return tValue.Equals(enumValue);
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// A Soundex code is a hashing mechanism that defines a code for the way a word
+    /// is pronounced. It provides the possibility to compare two word equality without
+    /// the need to be totally equal.
+    /// </summary>
+    /// <param name="data">The oroiginal word</param>
+    /// <returns>A soundex string</returns>
+    /// <remarks> From : https://stackoverflow.com/questions/11121936/dotnet-soundex-function</remarks>
+    public static string Soundex(this string data)
+    {
+        char[] result = new char[] { '0', '0', '0', '0', };
+
+        if (data != null && data.Length > 0)
+        {
+            char previousCode = '\0', currentCode = '\0', currentLetter = '\0';
+            int n = 0;
+            result[n++] = char.ToUpperInvariant(data[0]);
+
+            for (int i = 0; i < data.Length; i++)
+            {
+                currentLetter = char.ToUpperInvariant(data[i]);
+                currentCode = '\0';
+
+                if (ContainsCharacter("BFPV", currentLetter))
+                {
+                    currentCode = '1';
+                }
+                else if (ContainsCharacter("CGJKQSXZ", currentLetter))
+                {
+                    currentCode = '2';
+                }
+                else if (ContainsCharacter("DT", currentLetter))
+                {
+                    currentCode = '3';
+                }
+                else if (currentLetter == 'L')
+                {
+                    currentCode = '4';
+                }
+                else if (ContainsCharacter("MN", currentLetter))
+                {
+                    currentCode = '5';
+                }
+                else if (currentLetter == 'R')
+                {
+                    currentCode = '6';
+                }
+
+                if (currentCode != previousCode && i > 0 && currentCode != '\0')
+                {
+                    result[n++] = currentCode;
+                }
+
+                if (n == 4)
+                {
+                    break;
+                }
+
+                previousCode = currentCode;
+            }
+        }
+
+        return new string(result);
+    }
+
+    private static bool ContainsCharacter(string data, char c)
+    {
+        if (data == null || data.Length == 0)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < data.Length; i++)
+        {
+            if (char.Equals(data[i], c))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 }

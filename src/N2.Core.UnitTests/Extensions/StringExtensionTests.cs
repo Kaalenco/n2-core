@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 
 using N2.Core.Extensions;
 
@@ -70,4 +70,37 @@ public class StringExtensionTests
 
         Assert.AreEqual(expected, result.ToString("s"));
     }
+
+    [DataTestMethod]
+    [DataRow("Abacadabra", "A123")]
+    [DataRow("ABACADABRA", "A123")]
+    [DataRow("Kaal", "K400")]
+    [DataRow("Balt", "B430")]
+    public void TestSoundex(string value, string expected)
+    {
+        string soundex = value.Soundex();
+        Assert.AreEqual(expected, soundex);
+    }
+
+    [DataTestMethod]
+    [DataRow("1")]
+    [DataRow("first")]
+    [DataRow("First")]
+    [DataRow("FIRST")]
+    public void TestStringExtensionEqualToEnum(string value) => value.IsEnum(StringExtensionTestsControlSet.First);
+
+    [DataTestMethod]
+    [DataRow("0")]
+    [DataRow("Second")]
+    [DataRow("Third")]
+    [DataRow("")]
+    [DataRow(null)]
+    public void TestStringExtensionNotEqualToEnum(string value) => value.IsEnum(StringExtensionTestsControlSet.First);
+}
+
+public enum StringExtensionTestsControlSet
+{
+    None,
+    First,
+    Second
 }

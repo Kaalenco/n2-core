@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
 using Microsoft.Extensions.Logging;
@@ -52,6 +53,17 @@ public abstract class BaseCommandHandler<TQ, TA> : ICommandHandler<TQ, TA>
     /// </summary>
     protected ILogger Logger { get; private set; }
 
+    /// <summary>
+    /// Indication that the commandhandler is currently active and should not be disposed or removed from the conductor.
+    /// Use this to indicate that the commandhandler is currently processing requests or waiting for responses.
+    /// </summary>
+    public virtual bool IsActive => false;
+
+    /// <summary>
+    /// Indication that the commandhandler is enabled and can handle requests.
+    /// </summary>
+    public virtual bool IsEnabled => true;
+
     private readonly IRuntimeValidator<TQ> _validator;
 
     /// <summary>
@@ -77,10 +89,7 @@ public abstract class BaseCommandHandler<TQ, TA> : ICommandHandler<TQ, TA>
         Contract.NotNull(request, nameof(request));
         try
         {
-            if (_validator != null)
-            {
-                _validator.Validate(request);
-            }
+            _validator?.Validate(request);
             return ResponseStatus.Accepted;
         }
         catch (Exception ex)
@@ -120,11 +129,22 @@ public abstract class BaseCommandHandler<TQ, TA> : ICommandHandler<TQ, TA>
     /// <param name="request">The request.</param>
     /// <exception cref="NotImplementedException"></exception>
     /// <returns>A ResponseStatus.</returns>
-    public virtual ResponseStatus Accept(TQ request)
+    public virtual ResponseStatus ExecuteCommand(TQ request)
     {
         _request = request;
-        return ResponseStatus.Accepted;
+        return Invoke();
     }
+
+    ResponseStatus ICommandHandler.Invoke(ICommandRequest request)
+    {
+        if (request is TQ commandRequest)
+        {
+            _request = commandRequest;
+            return Invoke();
+        }
+        return ResponseStatus.NotAcceptable;
+    }
+
 
     /// <summary>
     /// Handles the request.
@@ -147,12 +167,20 @@ public abstract class BaseCommandHandler<TQ, TA> : ICommandHandler<TQ, TA>
     /// </summary>
     /// <param name="request">The request.</param>
     /// <returns>A TA.</returns>
-    public TA HandleRequest(TQ request)
+    [SuppressMessage("Design",
+        "CA1062:Validate arguments of public methods",
+        Justification = "Validate checks for null values")]
+    private TA HandleRequest(TQ request)
     {
         ResponseStatus status = Validate(request);
+        if (!Guid.TryParse(request.Handle, out Guid handle))
+        {
+            handle = Guid.NewGuid();
+        }
+
         if (status != ResponseStatus.Accepted)
         {
-            return (TA)response.CreateNew(status, "Validation failed for the request", request?.Handle);
+            return (TA)response.CreateNew(status, "Validation failed for the request", handle);
         }
 
         Task<TA> task = HandleRequestAsync(request);
@@ -177,7 +205,7 @@ public abstract class BaseCommandHandler<TQ, TA> : ICommandHandler<TQ, TA>
         return (TA)response.CreateNew(
             ResponseStatus.TimeOut,
             $"Could not complete request, timeout occured after {TimeoutInMilliSeconds} milliseconds.",
-            request?.Handle);
+            handle);
     }
 
     /// <summary>
@@ -202,15 +230,23 @@ public abstract class BaseCommandHandler<TQ, TA> : ICommandHandler<TQ, TA>
     /// </summary>
     /// <param name="request">The request.</param>
     /// <returns>A Task.</returns>
+    [SuppressMessage("Design",
+        "CA1062:Validate arguments of public methods",
+        Justification = "Validate checks for null values")]
     public Task<TA> WaitForAsync(TQ request)
     {
         ResponseStatus status = Validate(request);
+        if (!Guid.TryParse(request.Handle, out Guid handle))
+        {
+            handle = Guid.NewGuid();
+        }
+
         if (status != ResponseStatus.Accepted)
         {
             _result = (TA)response.CreateNew(
                 status,
                 $"Command not accepted: {status}\n {JsonSerializer.Serialize(request, options)}",
-                request?.Handle);
+                handle);
             return Task.FromResult(_result);
         }
         try
@@ -220,11 +256,19 @@ public abstract class BaseCommandHandler<TQ, TA> : ICommandHandler<TQ, TA>
         catch (Exception ex)
         {
             LogExecutionError(Logger, JsonSerializer.Serialize(request, options), ex);
-            _result = (TA)response.CreateNew(ResponseStatus.ServerError, ex.Message, request?.Handle);
+            _result = (TA)response.CreateNew(ResponseStatus.ServerError, ex.Message, handle);
             return Task.FromResult(_result);
         }
 
     }
+
+    /// <summary>
+    /// The Canhandle method should not validate the content, just return true
+    /// if the command can be handled or not.
+    /// </summary>
+    /// <param name="command">A command instance.</param>
+    /// <returns>true if the command can be handled by the command handler.</returns>
+    public abstract bool CanHandle(ICommandRequest command);
 }
 
 #pragma warning restore CA1031 // Do not catch general exception types

@@ -6,9 +6,9 @@
     <Nullable>enable</Nullable>
     <LangVersion>12</LangVersion>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <IncludeSymbols>False</IncludeSymbols>
 
-    <Title>N2-Core</Title>
+    <Title>N2 Core</Title>
     <Company>Kaalenco</Company>
     <Copyright>(c) 2025 - rights reserved</Copyright>
     <Authors>gjkaal</Authors>
@@ -17,13 +17,13 @@
     <Product>N2.Core</Product>
     <RootNamespace>N2.Core</RootNamespace>
     <ProductName>N2 Core libraries</ProductName>
-    <ProductVersion>1.3.0</ProductVersion>
 
-    <Version>1.3.0</Version>
+    <Version>1.4.0</Version>
+    <ProductVersion>1.4.0</ProductVersion>
+    <PackageVersion>1.4.0</PackageVersion>
 
     <PackageId>N2.Core</PackageId>
     <PackageType>Dependency</PackageType>
-    <PackageVersion>1.3.7</PackageVersion>
     <PackageLicenseExpression>AFL-3.0</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/kaalenco/n2-core</PackageProjectUrl>
 
@@ -46,14 +46,21 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.5" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.5" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="9.0.5" />
-    <PackageReference Include="System.Identitymodel.Tokens.Jwt" Version="8.11.0" />
-    <PackageReference Include="System.IO.Abstractions" Version="22.0.14" />
-    <PackageReference Include="N2.Core.Abstractions" Version="1.3.6" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.5" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.5" />
     <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="9.0.5" />
+    <PackageReference Include="System.Identitymodel.Tokens.Jwt" Version="8.11.0" />
+    <PackageReference Include="System.IO.Abstractions" Version="22.0.14" />
+    <PackageReference Include="N2.Core.Abstractions" Version="1.4.0" />
   </ItemGroup>
 
   <ItemGroup Condition="(('$(TargetFramework)'=='netstandard2.0') Or ('$(TargetFramework)'=='netstandard2.1'))">
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="PubSub\" />
   </ItemGroup>
 
 </Project>
