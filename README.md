@@ -1,3 +1,5 @@
+[![.NET Build and test](https://github.com/Kaalenco/n2-core/actions/workflows/dotnet.yml/badge.svg)](https://github.com/Kaalenco/n2-core/actions/workflows/dotnet.yml)
+
 # n2-core
 Basic functionality for any project
 
