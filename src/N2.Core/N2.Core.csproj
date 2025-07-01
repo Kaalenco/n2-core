@@ -19,8 +19,8 @@
     <ProductName>N2 Core libraries</ProductName>
 
     <Version>1.4.0</Version>
-    <ProductVersion>1.4.0</ProductVersion>
-    <PackageVersion>1.4.0</PackageVersion>
+    <ProductVersion>1.4.1</ProductVersion>
+    <PackageVersion>1.4.1</PackageVersion>
 
     <PackageId>N2.Core</PackageId>
     <PackageType>Dependency</PackageType>
