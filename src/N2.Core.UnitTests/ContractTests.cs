@@ -5,7 +5,7 @@ namespace N2.Core.UnitTests;
 [TestClass]
 public sealed class ContractTests
 {
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("ValidName")]
     [DataRow("valid_name")]
     [DataRow("_validName")]
@@ -18,7 +18,7 @@ public sealed class ContractTests
         // No exception means test passes
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(null, "Value cannot be empty or only whitespace.")]
     [DataRow("", "Value cannot be empty or only whitespace.")]
     [DataRow("   ", "Value cannot be empty or only whitespace.")]
@@ -28,7 +28,7 @@ public sealed class ContractTests
     public void ValidNameWithInvalidInputThrowsContractException(string invalidName, string expectedMessage)
     {
         // Act & Assert
-        ContractException exception = Assert.ThrowsException<ContractException>(() => Contract.ValidName(invalidName));
+        ContractException exception = Assert.Throws<ContractException>(() => Contract.ValidName(invalidName));
         Assert.AreEqual(expectedMessage, exception.Message);
     }
 
@@ -39,11 +39,11 @@ public sealed class ContractTests
         string tooLongName = new('a', 257);
 
         // Act & Assert
-        ContractException exception = Assert.ThrowsException<ContractException>(() => Contract.ValidName(tooLongName));
+        ContractException exception = Assert.Throws<ContractException>(() => Contract.ValidName(tooLongName));
         Assert.AreEqual("Name is too long, maximum length is 256 characters.", exception.Message);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("object")]
     [DataRow(1)]
     [DataRow(true)]
@@ -62,11 +62,11 @@ public sealed class ContractTests
         string paramName = "testParam";
 
         // Act & Assert
-        ArgumentNullException exception = Assert.ThrowsException<ArgumentNullException>(() => Contract.NotNull(nullObject, paramName));
+        ArgumentNullException exception = Assert.Throws<ArgumentNullException>(() => Contract.NotNull(nullObject, paramName));
         Assert.AreEqual(paramName, exception.ParamName);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow('a', true)]
     [DataRow('A', true)]
     [DataRow('z', true)]
@@ -84,7 +84,7 @@ public sealed class ContractTests
         Assert.AreEqual(expected, result);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow('0', true)]
     [DataRow('9', true)]
     [DataRow('5', true)]

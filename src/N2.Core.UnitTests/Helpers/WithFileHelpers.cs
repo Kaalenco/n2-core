@@ -48,7 +48,6 @@ public class WithFileHelpers
     }
 
     [TestMethod]
-    [ExpectedException(typeof(NotSupportedException))]
     public void ComputeSha384HashWhenFileInfoDoesNotExistThrowsException()
     {
         // Arrange
@@ -56,7 +55,7 @@ public class WithFileHelpers
         fileInfoMock.Setup(f => f.FullName).Returns("nonexistentfile.txt");
 
         // Act
-        fileInfoMock.Object.ComputeSha384Hash();
+        Assert.Throws<NotSupportedException>(() => fileInfoMock.Object.ComputeSha384Hash());
     }
 
     [TestMethod]

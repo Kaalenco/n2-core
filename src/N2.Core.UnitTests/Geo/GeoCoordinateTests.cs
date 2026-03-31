@@ -104,10 +104,10 @@ public class GeoCoordinateTests
     [TestMethod]
     public void GeoCoordinateGetDistanceToWithNaNCoordinatesThrowsArgumentException()
     {
-        Assert.ThrowsException<ArgumentException>(() => new GeoCoordinate(Double.NaN, 1).GetDistanceTo(new GeoCoordinate(5, 5)));
-        Assert.ThrowsException<ArgumentException>(() => new GeoCoordinate(1, Double.NaN).GetDistanceTo(new GeoCoordinate(5, 5)));
-        Assert.ThrowsException<ArgumentException>(() => new GeoCoordinate(1, 1).GetDistanceTo(new GeoCoordinate(Double.NaN, 5)));
-        Assert.ThrowsException<ArgumentException>(() => new GeoCoordinate(1, 1).GetDistanceTo(new GeoCoordinate(5, Double.NaN)));
+        Assert.Throws<ArgumentException>(() => new GeoCoordinate(Double.NaN, 1).GetDistanceTo(new GeoCoordinate(5, 5)));
+        Assert.Throws<ArgumentException>(() => new GeoCoordinate(1, Double.NaN).GetDistanceTo(new GeoCoordinate(5, 5)));
+        Assert.Throws<ArgumentException>(() => new GeoCoordinate(1, 1).GetDistanceTo(new GeoCoordinate(Double.NaN, 5)));
+        Assert.Throws<ArgumentException>(() => new GeoCoordinate(1, 1).GetDistanceTo(new GeoCoordinate(5, Double.NaN)));
     }
 
     [TestMethod]
@@ -190,17 +190,17 @@ public class GeoCoordinateTests
     [TestMethod]
     public void GeoCoordinateSetCourseThrowsOnInvalidValues()
     {
-        Assert.ThrowsException<ArgumentOutOfRangeException>(() => UnitUnderTest.Course = -0.1);
-        Assert.ThrowsException<ArgumentOutOfRangeException>(() => UnitUnderTest.Course = 360.1);
-        Assert.ThrowsException<ArgumentOutOfRangeException>(() => new GeoCoordinate(Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, -0.1));
-        Assert.ThrowsException<ArgumentOutOfRangeException>(() => new GeoCoordinate(Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, 360.1));
+        Assert.Throws<ArgumentOutOfRangeException>(() => UnitUnderTest.Course = -0.1);
+        Assert.Throws<ArgumentOutOfRangeException>(() => UnitUnderTest.Course = 360.1);
+        Assert.Throws<ArgumentOutOfRangeException>(() => new GeoCoordinate(Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, -0.1));
+        Assert.Throws<ArgumentOutOfRangeException>(() => new GeoCoordinate(Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, 360.1));
     }
 
     [TestMethod]
     public void GeoCoordinateSetHorizontalAccuracyThrowsOnInvalidValues()
     {
-        Assert.ThrowsException<ArgumentOutOfRangeException>(() => UnitUnderTest.HorizontalAccuracy = -0.1);
-        Assert.ThrowsException<ArgumentOutOfRangeException>(() => new GeoCoordinate(Double.NaN, Double.NaN, Double.NaN, -0.1, Double.NaN, Double.NaN, Double.NaN));
+        Assert.Throws<ArgumentOutOfRangeException>(() => UnitUnderTest.HorizontalAccuracy = -0.1);
+        Assert.Throws<ArgumentOutOfRangeException>(() => new GeoCoordinate(Double.NaN, Double.NaN, Double.NaN, -0.1, Double.NaN, Double.NaN, Double.NaN));
     }
 
     [TestMethod]
@@ -213,33 +213,33 @@ public class GeoCoordinateTests
     [TestMethod]
     public void GeoCoordinateSetLatitudeThrowsOnInvalidValues()
     {
-        Assert.ThrowsException<ArgumentOutOfRangeException>(() => UnitUnderTest.Latitude = 90.1);
-        Assert.ThrowsException<ArgumentOutOfRangeException>(() => UnitUnderTest.Latitude = -90.1);
-        Assert.ThrowsException<ArgumentOutOfRangeException>(() => new GeoCoordinate(90.1, Double.NaN));
-        Assert.ThrowsException<ArgumentOutOfRangeException>(() => new GeoCoordinate(-90.1, Double.NaN));
+        Assert.Throws<ArgumentOutOfRangeException>(() => UnitUnderTest.Latitude = 90.1);
+        Assert.Throws<ArgumentOutOfRangeException>(() => UnitUnderTest.Latitude = -90.1);
+        Assert.Throws<ArgumentOutOfRangeException>(() => new GeoCoordinate(90.1, Double.NaN));
+        Assert.Throws<ArgumentOutOfRangeException>(() => new GeoCoordinate(-90.1, Double.NaN));
     }
 
     [TestMethod]
     public void GeoCoordinateSetLongitudeThrowsOnInvalidValues()
     {
-        Assert.ThrowsException<ArgumentOutOfRangeException>(() => UnitUnderTest.Longitude = 180.1);
-        Assert.ThrowsException<ArgumentOutOfRangeException>(() => UnitUnderTest.Longitude = -180.1);
-        Assert.ThrowsException<ArgumentOutOfRangeException>(() => new GeoCoordinate(Double.NaN, 180.1));
-        Assert.ThrowsException<ArgumentOutOfRangeException>(() => new GeoCoordinate(Double.NaN, -180.1));
+        Assert.Throws<ArgumentOutOfRangeException>(() => UnitUnderTest.Longitude = 180.1);
+        Assert.Throws<ArgumentOutOfRangeException>(() => UnitUnderTest.Longitude = -180.1);
+        Assert.Throws<ArgumentOutOfRangeException>(() => new GeoCoordinate(Double.NaN, 180.1));
+        Assert.Throws<ArgumentOutOfRangeException>(() => new GeoCoordinate(Double.NaN, -180.1));
     }
 
     [TestMethod]
     public void GeoCoordinateSetSpeedThrowsOnInvalidValues()
     {
-        Assert.ThrowsException<ArgumentOutOfRangeException>(() => UnitUnderTest.Speed = -0.1);
-        Assert.ThrowsException<ArgumentOutOfRangeException>(() => new GeoCoordinate(Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, -1, Double.NaN));
+        Assert.Throws<ArgumentOutOfRangeException>(() => UnitUnderTest.Speed = -0.1);
+        Assert.Throws<ArgumentOutOfRangeException>(() => new GeoCoordinate(Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, -1, Double.NaN));
     }
 
     [TestMethod]
     public void GeoCoordinateSetVerticalAccuracyThrowsOnInvalidValues()
     {
-        Assert.ThrowsException<ArgumentOutOfRangeException>(() => UnitUnderTest.VerticalAccuracy = -0.1);
-        Assert.ThrowsException<ArgumentOutOfRangeException>(() => new GeoCoordinate(Double.NaN, Double.NaN, Double.NaN, Double.NaN, -0.1, Double.NaN, Double.NaN));
+        Assert.Throws<ArgumentOutOfRangeException>(() => UnitUnderTest.VerticalAccuracy = -0.1);
+        Assert.Throws<ArgumentOutOfRangeException>(() => new GeoCoordinate(Double.NaN, Double.NaN, Double.NaN, Double.NaN, -0.1, Double.NaN, Double.NaN));
     }
 
     [TestMethod]

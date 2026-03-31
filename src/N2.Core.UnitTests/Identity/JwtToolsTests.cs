@@ -76,7 +76,7 @@ public class JwtToolsTests
 
         byte[] key = Convert.FromBase64String("OmuURxFCm3Vu4zXx8IqtHbhY8fsz9YtF++NDaD4rwj+nfqBU/ehaXbXMIjqAf51w3dnAFDmjWblW0EP6EuyE/w==");
 
-        Assert.ThrowsException<WebTokenException>(() =>
+        Assert.Throws<WebTokenException>(() =>
         {
             // Token is expired
             _ = JwtTools.GetPrincipal(authorization, key);

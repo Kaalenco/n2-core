@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netstandard2.1;NET8.0;NET9.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;NET8.0;NET10.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <LangVersion>12</LangVersion>
@@ -18,9 +18,9 @@
     <RootNamespace>N2.Core</RootNamespace>
     <ProductName>N2 Core libraries</ProductName>
 
-    <Version>1.4.0</Version>
-    <ProductVersion>1.4.1</ProductVersion>
-    <PackageVersion>1.4.1</PackageVersion>
+    <Version>1.5.2</Version>
+    <ProductVersion>1.5.2</ProductVersion>
+    <PackageVersion>1.5.2</PackageVersion>
 
     <PackageId>N2.Core</PackageId>
     <PackageType>Dependency</PackageType>
@@ -31,6 +31,28 @@
   </PropertyGroup>
 
   <PropertyGroup>
+    <NuGetAudit>True</NuGetAudit>
+    <NuGetAuditMode>All</NuGetAuditMode>
+    <NuGetAuditLevel>Low</NuGetAuditLevel>
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <WarningLevel>6</WarningLevel>
+    <WarningsAsErrors></WarningsAsErrors>
+    <NoWarn>S1135;RCS1021;CA1040;CA1055;CA1308;CS1591;CA1002;CA1819;CA2007;CA1859;CA1812;S2094;CA1707;IDE0290;S125;RMG020;IDE0060;CA1510</NoWarn>
+    <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
+    <EnableNETAnalyzers>True</EnableNETAnalyzers>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
+    <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <RunAnalyzersDuringLiveAnalysis>true</RunAnalyzersDuringLiveAnalysis>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <AnalysisMode>All</AnalysisMode>
+  </PropertyGroup>  
+  
+  <PropertyGroup>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
   </PropertyGroup>
 
@@ -39,21 +61,21 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.5" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.5" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.5" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.5" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.5" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="9.0.5" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.5" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.5" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.5" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.5" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="9.0.5" />
-    <PackageReference Include="System.Identitymodel.Tokens.Jwt" Version="8.11.0" />
-    <PackageReference Include="System.IO.Abstractions" Version="22.0.14" />
-    <PackageReference Include="N2.Core.Abstractions" Version="1.4.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.9" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="10.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="10.0.5" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="10.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="10.0.5" />
+    <PackageReference Include="System.Identitymodel.Tokens.Jwt" Version="8.17.0" />
+    <PackageReference Include="System.IO.Abstractions" Version="22.1.0" />
+    <PackageReference Include="N2.Core.Abstractions" Version="1.5.2" />
   </ItemGroup>
 
   <ItemGroup Condition="(('$(TargetFramework)'=='netstandard2.0') Or ('$(TargetFramework)'=='netstandard2.1'))">
@@ -64,3 +86,4 @@
   </ItemGroup>
 
 </Project>
+

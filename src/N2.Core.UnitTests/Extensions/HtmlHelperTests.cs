@@ -5,7 +5,7 @@ namespace N2.Core.UnitTests.Extensions;
 [TestClass]
 public class HtmlHelperTests
 {
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("h1", "Hello", "")]
     [DataRow("h1", "<h1>Hello</h1>", "Hello")]
     [DataRow("h1", "<h1 class=\"H1\">Hello</h1>", "Hello")]

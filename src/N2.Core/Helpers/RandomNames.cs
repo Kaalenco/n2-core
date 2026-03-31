@@ -1,12 +1,17 @@
-﻿namespace N2.Core.Helpers;
+﻿using System.Security.Cryptography;
+
+namespace N2.Core.Helpers;
 
 public static class RandomNames
 {
-    private static readonly Random random = new();
 
     public static string CreateRandomName()
     {
-        return names[random.Next(names.Length)];
+#if NETSTANDARD2_1_OR_GREATER
+        return names[RandomNumberGenerator.GetInt32(names.Length)];
+#else
+        return names[Extensions.RandomStringGenerator.GetInt32(names.Length)];
+#endif
     }
 
     private static readonly string[] names = [

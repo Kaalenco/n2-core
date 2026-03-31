@@ -7,7 +7,7 @@ namespace N2.Core.UnitTests.Extensions;
 [TestClass]
 public class StringExtensionTests
 {
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("00000000-0000-0000-0000-000000000000")]
     [DataRow("")]
     [DataRow(null)]
@@ -17,7 +17,7 @@ public class StringExtensionTests
         Assert.AreEqual(Guid.Empty, result);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("00000000-0000-0000-0000-000000000001", "00000000-0000-0000-0000-000000000001")]
     [DataRow("Test", "54534554-0000-0000-0000-0004dada00ff")]
     public void ConvertToGuidValidStringReturnsGuid(
@@ -35,7 +35,7 @@ public class StringExtensionTests
         Assert.AreEqual(expected, result);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("00000000-0000-0000-0000-000000000000", "")]
     [DataRow("54534554-0000-0000-0000-0004dada00ff", "TEST")]
     [DataRow("5AA3BE99-32B9-4793-B1CF-AAA5F323BAB6", "5aa3be99-32b9-4793-b1cf-aaa5f323bab6")]
@@ -47,7 +47,7 @@ public class StringExtensionTests
         Assert.AreEqual(expected, result);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("(3x5)+(3*2)", '(', ')', 0)]
     [DataRow("(3x5)+(3*2", '(', ')', 1)]
     [DataRow("(3x5)+ 3*2)", '(', ')', -1)]
@@ -59,7 +59,7 @@ public class StringExtensionTests
         Assert.AreEqual(expected, result);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("2024-01-01", "2024-01-01T01:00:00")]
     [DataRow("2024-05-01", "2024-05-01T02:00:00")]
     public void ConvertToDateTimeShouldReturnDateTime(
@@ -71,7 +71,7 @@ public class StringExtensionTests
         Assert.AreEqual(expected, result.ToString("s"));
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("Abacadabra", "A123")]
     [DataRow("ABACADABRA", "A123")]
     [DataRow("Kaal", "K400")]
@@ -82,14 +82,14 @@ public class StringExtensionTests
         Assert.AreEqual(expected, soundex);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("1")]
     [DataRow("first")]
     [DataRow("First")]
     [DataRow("FIRST")]
     public void TestStringExtensionEqualToEnum(string value) => value.IsEnum(StringExtensionTestsControlSet.First);
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("0")]
     [DataRow("Second")]
     [DataRow("Third")]

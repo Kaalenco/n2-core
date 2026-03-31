@@ -15,16 +15,18 @@ public class NCoreSemaphoreTest
         _ = new Semaphore(0, 5, "");
         _ = new Semaphore(4, "");
         _ = new Semaphore(3, null);
+#pragma warning disable MSTEST0032 // This test does not contain any assertions, but it is testing that no exceptions are thrown during initialization.
         Assert.IsTrue(true, "Initialization is successful");
+#pragma warning restore MSTEST0032
     }
 
     [TestMethod]
     public void InitializeNCoreSemaphoreFail()
     {
-        Assert.ThrowsException<ArgumentOutOfRangeException>(() => { _ = new Semaphore(0, 0); });
-        Assert.ThrowsException<ArgumentOutOfRangeException>(() => { _ = new Semaphore(4, 0); });
-        Assert.ThrowsException<ArgumentOutOfRangeException>(() => { _ = new Semaphore(4, 4); });
-        Assert.ThrowsException<ArgumentOutOfRangeException>(() => { _ = new Semaphore(0, -1); });
+        Assert.Throws<ArgumentOutOfRangeException>(() => { _ = new Semaphore(0, 0); });
+        Assert.Throws<ArgumentOutOfRangeException>(() => { _ = new Semaphore(4, 0); });
+        Assert.Throws<ArgumentOutOfRangeException>(() => { _ = new Semaphore(4, 4); });
+        Assert.Throws<ArgumentOutOfRangeException>(() => { _ = new Semaphore(0, -1); });
     }
 
     [TestMethod]
@@ -40,7 +42,7 @@ public class NCoreSemaphoreTest
         Assert.AreEqual(0, s.CurrentValue);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(0, 2)]
     [DataRow(-1, 1)]
     [DataRow(-2, 0)]

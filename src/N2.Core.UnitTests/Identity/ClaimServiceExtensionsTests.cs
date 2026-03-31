@@ -13,7 +13,7 @@ namespace OAuthServices
         /// </summary>
         /// <param name="claimType">The claim type.</param>
         /// <param name="expected">The expected result.</param>
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(ClaimType.Email, "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress")]
         public void ClaimServiceExtensionsTranslatesClaimTypeEnum(ClaimType claimType, string expected)
         {

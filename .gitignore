@@ -396,4 +396,9 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
-src/.idea
+
+Claude.md
+.claude
+.serena
+.mcp.json
+.idea
