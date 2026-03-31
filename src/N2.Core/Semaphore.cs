@@ -46,7 +46,11 @@ public class Semaphore
         {
             lock (_lock)
             {
-                CurrentValue += 1;
+                if (CurrentValue < MaxValue)
+                {
+                    CurrentValue+=1;
+                    return true;
+                }
             }
             if (CurrentValue > MaxValue)
             {

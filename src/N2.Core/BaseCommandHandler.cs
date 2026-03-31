@@ -183,28 +183,22 @@ public abstract class BaseCommandHandler<TQ, TA> : ICommandHandler<TQ, TA>
             return (TA)response.CreateNew(status, "Validation failed for the request", handle);
         }
 
+        int timeoutMs = TimeoutInMilliSeconds > 0 ? TimeoutInMilliSeconds : LongTimeout;
         Task<TA> task = HandleRequestAsync(request);
-        if (task.IsCompleted)
-        {
-            // Wait for the result to be available.
-            task.Wait();
-            return task.Result;
-        }
 
-        Task timeout = new(() => { Thread.Sleep(TimeoutInMilliSeconds > 0 ? TimeoutInMilliSeconds : LongTimeout); });
-
-        task.Start();
-        timeout.Start();
-        int finished = Task.WaitAny(new[] { task, timeout });
-        if (task.IsCompleted)
+        if (task.Wait(timeoutMs))
         {
             _result = task.Result;
             return task.Result;
         }
 
+        // Note: the handler task continues running to completion on the ThreadPool.
+        // Task.Wait only stops waiting — it does not cancel execution. Any side effects
+        // (DB writes, HTTP calls, etc.) will still occur. True cancellation requires
+        // passing a CancellationToken into HandleRequestAsync.
         return (TA)response.CreateNew(
             ResponseStatus.TimeOut,
-            $"Could not complete request, timeout occured after {TimeoutInMilliSeconds} milliseconds.",
+            $"Could not complete request, timeout occured after {timeoutMs} milliseconds.",
             handle);
     }
 

@@ -5,7 +5,7 @@ namespace N2.Core;
 
 public class DefaultValueService : IDefaultValueService
 {
-    public object JsonSerializerOptions => new JsonSerializerOptions
+    private readonly JsonSerializerOptions _jsonSerializerOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
         WriteIndented = true,
@@ -15,4 +15,6 @@ public class DefaultValueService : IDefaultValueService
                 new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower)
             }
     };
+
+    public object JsonSerializerOptions => _jsonSerializerOptions;
 }

@@ -123,7 +123,7 @@ public class OAuthCommandHandler : BaseCommandHandler<TokenRequest, TokenRespons
 
         string newToken = JwtTools.ConvertToJwt(claims, audience, _config.Issuer, _secret, tokenTimeOut);
 
-        if (!refreshTask.Wait(200))
+        if (await Task.WhenAny(refreshTask, Task.Delay(200)) != refreshTask)
         {
             refreshToken = Guid.Empty;
         }

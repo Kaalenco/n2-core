@@ -52,9 +52,10 @@ public class Conductor : IConductor
 
     public bool IsActive => _activeCommandThreads > 0 || Invoking > 0;
 
-    public int Invoking { get; private set; }
+    private int _invoking;
+    public int Invoking => _invoking;
 
-    private static int _activeCommandThreads;
+    private int _activeCommandThreads;
     private static readonly Semaphore _pool = new(0, 20, "ConductorThreads");
 
     public void CallBack<TResponse>(TResponse result) where TResponse : ICommandResponse
@@ -108,7 +109,7 @@ public class Conductor : IConductor
             handle = Guid.NewGuid();
         }
 
-        Invoking++;
+        Interlocked.Increment(ref _invoking);
         ICommandHandler<TCommand>[] handlers = _serviceProvider.GetServices<ICommandHandler<TCommand>>().ToArray();
         if (handlers == null)
         {
@@ -116,6 +117,7 @@ public class Conductor : IConductor
                 handle,
                 command.GetType().Name,
                 JsonSerializer.Serialize(command));
+            Interlocked.Decrement(ref _invoking);
             return ResponseStatus.NotAcceptable;
         }
 
@@ -133,7 +135,7 @@ public class Conductor : IConductor
                     _logger.TrackingInfo(handle, $"Start invoke for {handler.GetType()}");
                     if (_pool.WaitOne(TimeSpan.FromMilliseconds(ThreadTimeOut)))
                     {
-                        _activeCommandThreads++;
+                        Interlocked.Increment(ref _activeCommandThreads);
 #pragma warning disable CA1031 // Do not catch general exception types
                         try
                         {
@@ -148,7 +150,7 @@ public class Conductor : IConductor
                                 e);
                         }
 #pragma warning restore CA1031 // Do not catch general exception types
-                        _activeCommandThreads--;
+                        Interlocked.Decrement(ref _activeCommandThreads);
                         _pool.Release();
                     }
                     else
@@ -160,7 +162,7 @@ public class Conductor : IConductor
                 t.Start();
             }
         }
-        Invoking--;
+        Interlocked.Decrement(ref _invoking);
         return ResponseStatus.Accepted;
     }
 
