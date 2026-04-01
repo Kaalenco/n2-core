@@ -1,10 +1,11 @@
+using Microsoft.IdentityModel.Tokens;
+
+using System.Diagnostics;
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-
-using Microsoft.IdentityModel.Tokens;
 
 namespace N2.Core.Identity
 {
@@ -54,8 +55,10 @@ namespace N2.Core.Identity
         /// </summary>
         /// <param name="authorization">The authorization request.</param>
         /// <param name="key">The key.</param>
+        /// <param name="issuer">Expected issuer. When provided, the token's issuer is validated against this value.</param>
+        /// <param name="audience">Expected audience. When provided, the token's audience is validated against this value.</param>
         /// <returns>A ClaimsPrincipal.</returns>
-        public static ClaimsPrincipal GetPrincipal(string authorization, byte[] key)
+        public static ClaimsPrincipal GetPrincipal(string authorization, byte[] key, string? issuer = null, string? audience = null)
         {
             if (string.IsNullOrEmpty(authorization))
             {
@@ -68,7 +71,7 @@ namespace N2.Core.Identity
                 return new ClaimsPrincipal();
             }
 
-            return GetPrincipalFromJwt(bearer[1], key);
+            return GetPrincipalFromJwt(bearer[1], key, issuer, audience);
         }
 
 
@@ -77,8 +80,10 @@ namespace N2.Core.Identity
         /// </summary>
         /// <param name="token">The token.</param>
         /// <param name="key">The secret key, to validate the token.</param>
+        /// <param name="issuer">Expected issuer. When provided, the token's issuer is validated against this value.</param>
+        /// <param name="audience">Expected audience. When provided, the token's audience is validated against this value.</param>
         /// <returns>A ClaimsPrincipal.</returns>
-        public static ClaimsPrincipal GetPrincipalFromJwt(string token, byte[] key)
+        public static ClaimsPrincipal GetPrincipalFromJwt(string token, byte[] key, string? issuer = null, string? audience = null)
         {
             try
             {
@@ -89,15 +94,15 @@ namespace N2.Core.Identity
                     return null!;
                 }
 
-#pragma warning disable CA5404 // Do not disable token validation checks
                 TokenValidationParameters parameters = new()
                 {
                     RequireExpirationTime = true,
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
+                    ValidateIssuer = issuer != null,
+                    ValidIssuer = issuer,
+                    ValidateAudience = audience != null,
+                    ValidAudience = audience,
                     IssuerSigningKey = new SymmetricSecurityKey(key)
                 };
-#pragma warning restore CA5404 // Do not disable token validation checks
 
                 ClaimsPrincipal principal = tokenHandler.ValidateToken(
                     token,
@@ -122,33 +127,31 @@ namespace N2.Core.Identity
         /// <param name="referenceTime">The reference time.</param>
         /// <param name="hash">The hash.</param>
         /// <param name="secret">The secret.</param>
-        /// <param name="timeWindowInMinutes">The time window in minutes.</param>
+        /// <param name="timeWindowInSeconds">The time window in seconds.</param>
         /// <returns>A bool.</returns>
-        public static bool ValidateTOTP(DateTime referenceTime, string hash, string secret, int timeWindowInMinutes)
+        public static bool ValidateTOTP(DateTime referenceTime, string hash, string secret, int timeWindowInSeconds)
         {
             DateTime refTime = new(referenceTime.Year, referenceTime.Month, referenceTime.Day, referenceTime.Hour, referenceTime.Minute, 0);
             byte[] key = Convert.FromBase64String(secret);
             byte[] hashKey = Convert.FromBase64String(hash);
-            long epoch = (long)Math.Round(((refTime - UnixEpoch).TotalSeconds + 30) / 60) / timeWindowInMinutes;
+            long epoch = (long)(refTime - UnixEpoch).TotalSeconds / timeWindowInSeconds;
 
+            var timer = Stopwatch.StartNew();
+            bool matched;
             using (HMACSHA256 hmac = new(key))
             {
-                if (CheckHash(hashKey, hmac.ComputeHash(Encoding.UTF8.GetBytes(epoch.ToString(CultureInfo.InvariantCulture)))))
-                {
-                    return true;
-                }
-                // retry with extension earlier or later
-                if (CheckHash(hashKey, hmac.ComputeHash(Encoding.UTF8.GetBytes((epoch + 1).ToString(CultureInfo.InvariantCulture)))))
-                {
-                    return true;
-                }
-
-                if (CheckHash(hashKey, hmac.ComputeHash(Encoding.UTF8.GetBytes((epoch - 1).ToString(CultureInfo.InvariantCulture)))))
-                {
-                    return true;
-                }
+                matched = CheckHash(hashKey, hmac.ComputeHash(Encoding.UTF8.GetBytes(epoch.ToString(CultureInfo.InvariantCulture))))
+                       || CheckHash(hashKey, hmac.ComputeHash(Encoding.UTF8.GetBytes((epoch + 1).ToString(CultureInfo.InvariantCulture))))
+                       || CheckHash(hashKey, hmac.ComputeHash(Encoding.UTF8.GetBytes((epoch - 1).ToString(CultureInfo.InvariantCulture))));
             }
-            return false;
+            // Enforce a minimum elapsed time once per validation call to resist
+            // network-level timing analysis without blocking 3x on each inner check.
+            long elapsed = timer.ElapsedMilliseconds;
+            if (elapsed < 500)
+            {
+                Thread.Sleep((int)(500 - elapsed));
+            }
+            return matched;
         }
 
         /// <summary>
@@ -156,39 +159,37 @@ namespace N2.Core.Identity
         /// </summary>
         /// <param name="referenceTime">The reference time.</param>
         /// <param name="secret">The secret.</param>
-        /// <param name="timeWindowInMinutes">The time window in minutes.</param>
+        /// <param name="timeWindowInSeconds">The time window in seconds.</param>
         /// <returns>A string.</returns>
-        public static string TOTP(DateTime referenceTime, string secret, int timeWindowInMinutes)
+        public static string TOTP(DateTime referenceTime, string secret, int timeWindowInSeconds)
         {
             DateTime refTime = new(referenceTime.Year, referenceTime.Month, referenceTime.Day, referenceTime.Hour, referenceTime.Minute, 0);
             byte[] key = Convert.FromBase64String(secret);
-            long epoch = (long)Math.Round((refTime - UnixEpoch).TotalSeconds / 60) / timeWindowInMinutes;
+            long epoch = (long)(refTime - UnixEpoch).TotalSeconds / timeWindowInSeconds;
             using (HMACSHA256 hmac = new(key))
             {
                 return Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(epoch.ToString(CultureInfo.InvariantCulture))));
             }
         }
 
-        private static bool CheckHash(this byte[] left, byte[] right)
+        /// <summary>
+        /// Constant-time byte array comparison. Uses XOR accumulation so execution
+        /// time does not vary with the position of the first differing byte,
+        /// preventing timing side-channel attacks.
+        /// The caller is responsible for enforcing a minimum wall-clock delay.
+        /// </summary>
+        private static bool CheckHash(byte[] left, byte[] right)
         {
-            if (left == null || right == null)
+            if (left == null || right == null || left.Length != right.Length)
             {
                 return false;
             }
-
-            if (left.Length != right.Length)
-            {
-                return false;
-            }
-
+            int diff = 0;
             for (int i = 0; i < left.Length; i++)
             {
-                if (left[i] != right[i])
-                {
-                    return false;
-                }
+                diff |= left[i] ^ right[i];
             }
-            return true;
+            return diff == 0;
         }
 
         /// <summary>

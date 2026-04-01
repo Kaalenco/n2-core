@@ -67,6 +67,118 @@ public class GenericClassExtensionTests
         Assert.AreEqual(25, target.CurrentAge);
     }
 
+    [TestMethod]
+    public void CopyFromReturnsTargetWithMappedValues()
+    {
+        var source = new SimpleClassA { Name = "Jane", Age = 30 };
+        var target = new SimpleClassA();
+
+        SimpleClassA? result = target.CopyFrom(source);
+
+        Assert.AreSame(target, result);
+        Assert.AreEqual("Jane", result!.Name);
+        Assert.AreEqual(30, result.Age);
+    }
+
+    [TestMethod]
+    public void CopyFromReturnsDefaultWhenTargetIsNull()
+    {
+        var source = new SimpleClassA { Name = "Jane", Age = 30 };
+        SimpleClassA? target = null;
+
+        SimpleClassA? result = target!.CopyFrom(source);
+
+        Assert.IsNull(result);
+    }
+
+    [TestMethod]
+    public void PropertyMapperDoesNothingWhenNoPropertiesMatch()
+    {
+        var source = new SimpleClassA { Name = "John", Age = 25 };
+        var target = new NoOverlapClass();
+
+        source.MapPropertyValuesByName(target);
+
+        Assert.AreEqual("default", target.Description);
+        Assert.AreEqual(0, target.Score);
+    }
+
+    [TestMethod]
+    public void PropertyMapperCopiesNullValues()
+    {
+        var source = new SimpleClassA { Name = null, Age = 25 };
+        var target = new SimpleClassA { Name = "original" };
+
+        source.MapPropertyValuesByName(target);
+
+        Assert.IsNull(target.Name);
+    }
+
+    [TestMethod]
+    public void PropertyMapperMatchesPropertiesCaseInsensitive()
+    {
+        var source = new CamelCaseClass { name = "Alice", age = 42 };
+        var target = new SimpleClassA();
+
+        source.MapPropertyValuesByName(target);
+
+        Assert.AreEqual("Alice", target.Name);
+        Assert.AreEqual(42, target.Age);
+    }
+
+    [TestMethod]
+    public void PropertyMapperProducesConsistentResultsOnRepeatedCalls()
+    {
+        var source = new SimpleClassA { Name = "First", Age = 1 };
+        var target1 = new SimpleClassB();
+        var target2 = new SimpleClassB();
+
+        source.MapPropertyValuesByName(target1);
+        source.Name = "Second";
+        source.Age = 2;
+        source.MapPropertyValuesByName(target2);
+
+        Assert.AreEqual("First", target1.Name);
+        Assert.AreEqual(1, target1.Age);
+        Assert.AreEqual("Second", target2.Name);
+        Assert.AreEqual(2, target2.Age);
+    }
+
+    [TestMethod]
+    public void SerializeForViewReturnsJsonString()
+    {
+        var source = new SimpleClassA { Name = "John", Age = 25 };
+
+        string result = source.SerializeForView();
+
+        Assert.IsNotNull(result);
+        StringAssert.Contains(result, "John", StringComparison.Ordinal);
+        StringAssert.Contains(result, "25", StringComparison.Ordinal);
+    }
+
+    [TestMethod]
+    public void SerializeForViewReturnsIndentedJson()
+    {
+        var source = new SimpleClassA { Name = "John", Age = 25 };
+
+        string result = source.SerializeForView();
+
+        Assert.IsTrue(result.Contains('\n', StringComparison.Ordinal), "Expected indented (multi-line) JSON");
+    }
+
+    private sealed class NoOverlapClass
+    {
+        public string Description { get; set; } = "default";
+        public int Score { get; set; }
+    }
+
+    private sealed class CamelCaseClass
+    {
+        // Lower-case property names to verify case-insensitive matching
+        public string? name { get; set; }
+        public int age { get; set; }
+    }
+
     private sealed class SimpleClassA
     {
         public string? Name { get; set; } = string.Empty;

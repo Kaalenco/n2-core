@@ -9,6 +9,8 @@ namespace N2.Core.Http;
 public class HttpRequestProxy : IHttpRequest
 {
     private readonly HttpRequest baseRequest;
+    private ReadOnlyDictionary<string, string>? _headers;
+
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
     public HttpRequestProxy(HttpRequest baseRequest)
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
@@ -21,10 +23,8 @@ public class HttpRequestProxy : IHttpRequest
     public PipeReader BodyReader => PipeReader.Create(baseRequest.Body);
     public Stream Body { get => baseRequest.Body; set { baseRequest.Body = value; } }
 
-    public ReadOnlyDictionary<string, string> Headers
-    {
-        get => new(baseRequest.Headers.ToDictionary(kvp => kvp.Key.ToString(), kvp => kvp.Value.ToString()));
-    }
+    public ReadOnlyDictionary<string, string> Headers =>
+        _headers ??= new(baseRequest.Headers.ToDictionary(kvp => kvp.Key.ToString(), kvp => kvp.Value.ToString()));
 
     public string Protocol { get => baseRequest.Protocol; }
     public string QueryString { get => baseRequest.QueryString.ToString(); }
@@ -35,7 +35,7 @@ public class HttpRequestProxy : IHttpRequest
     public string Scheme { get => baseRequest.Scheme; }
     public string Method { get => baseRequest.Method; }
     public IEnumerable<KeyValuePair<string, StringValues>>? Query => baseRequest.Query;
-    ReadOnlyDictionary<string, string> IHttpRequest.Headers { get; }
+
 
     public Task<string> ReadAsStringAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
 }

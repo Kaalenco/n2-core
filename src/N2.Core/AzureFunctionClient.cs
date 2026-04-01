@@ -1,20 +1,22 @@
+using N2.Core.Http;
+
 using System.Text;
 using System.Text.Json;
 
 namespace N2.Core;
 
-public class AzureFunctionClient : IDisposable, IAzureFunctionClient
+public class AzureFunctionClient : IAzureFunctionClient
 {
-    private readonly HttpClient httpClient = new();
+    private readonly IHttpClient httpClient;
     private readonly IActivityLogger activityLogger;
     private readonly IDefaultValueService defaultValueService;
     private readonly string apiKey;
     private readonly Uri basePath;
-    private bool disposedValue;
 
     public AzureFunctionClient(
         IActivityLogger activityLogger,
         IDefaultValueService defaultValueService,
+        IHttpClient httpClient,
         Uri basePath,
         string apiKey)
     {
@@ -22,6 +24,7 @@ public class AzureFunctionClient : IDisposable, IAzureFunctionClient
         this.defaultValueService = defaultValueService;
         this.apiKey = apiKey;
         this.activityLogger = activityLogger;
+        this.httpClient = httpClient;
     }
 
     public async Task<TA?> CallAsync<TQ, TA>(string functionPath, TQ request, CancellationToken cancellationToken)
@@ -50,7 +53,7 @@ public class AzureFunctionClient : IDisposable, IAzureFunctionClient
 #else
         string result = await response.Content.ReadAsStringAsync(cancellationToken);
 #endif
-        if (string.IsNullOrEmpty(content))
+        if (string.IsNullOrEmpty(result))
         {
             activityLogger.Tag("Warning", $"Empty response from {url}");
             return default;
@@ -61,25 +64,6 @@ public class AzureFunctionClient : IDisposable, IAzureFunctionClient
             return (TA)(object)result;
         }
 
-        return JsonSerializer.Deserialize<TA>(content, (JsonSerializerOptions)defaultValueService.JsonSerializerOptions);
-    }
-
-    protected virtual void Dispose(bool disposing)
-    {
-        if (!disposedValue)
-        {
-            if (disposing)
-            {
-                httpClient.Dispose();
-            }
-
-            disposedValue = true;
-        }
-    }
-
-    public void Dispose()
-    {
-        Dispose(disposing: true);
-        GC.SuppressFinalize(this);
+        return JsonSerializer.Deserialize<TA>(result, (JsonSerializerOptions)defaultValueService.JsonSerializerOptions);
     }
 }

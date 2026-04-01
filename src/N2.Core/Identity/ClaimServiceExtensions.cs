@@ -9,15 +9,15 @@ namespace N2.Core.Identity
         /// <summary>
         /// Dictionary to translate claimtype to its string equivalent.
         /// </summary>
-        private static readonly Dictionary<ClaimType, Func<string>> _claims = new()
+        private static readonly Dictionary<ClaimType, string> _claims = new()
         {
-            { ClaimType.UserName, () => System.Security.Claims.ClaimTypes.Name },
-            { ClaimType.Email, () => System.Security.Claims.ClaimTypes.Email },
-            { ClaimType.Actor, () => System.Security.Claims.ClaimTypes.Actor },
-            { ClaimType.Role, () => System.Security.Claims.ClaimTypes.Role },
-            { ClaimType.GivenName, () => System.Security.Claims.ClaimTypes.GivenName },
-            { ClaimType.PrimarySid, () => System.Security.Claims.ClaimTypes.PrimarySid },
-            { ClaimType.Culture, () => System.Security.Claims.ClaimTypes.Locality },
+            { ClaimType.UserName,   System.Security.Claims.ClaimTypes.Name },
+            { ClaimType.Email,      System.Security.Claims.ClaimTypes.Email },
+            { ClaimType.Actor,      System.Security.Claims.ClaimTypes.Actor },
+            { ClaimType.Role,       System.Security.Claims.ClaimTypes.Role },
+            { ClaimType.GivenName,  System.Security.Claims.ClaimTypes.GivenName },
+            { ClaimType.PrimarySid, System.Security.Claims.ClaimTypes.PrimarySid },
+            { ClaimType.Culture,    System.Security.Claims.ClaimTypes.Locality },
         };
 
         /// <summary>
@@ -27,9 +27,9 @@ namespace N2.Core.Identity
         /// <returns></returns>
         public static string ClaimName(this ClaimType claimType)
         {
-            if (_claims.TryGetValue(claimType, out Func<string>? value))
+            if (_claims.TryGetValue(claimType, out string? value))
             {
-                return value.Invoke();
+                return value;
             }
 
             return $"http://localhost/undefined-claims/{claimType}";

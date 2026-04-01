@@ -32,7 +32,7 @@ public class JwtToolsTests
     {
         string secret = "QDebDB8kUuybqB5bgV6YI8R5bmM+u2AqhpfyGKCSdXtTdlIvzB8uhUEv2+wx4qZ+18Qx/dtu+WtXlNpd9yFkHQ==";
         DateTime datetime = new(2021, 12, 23, 10, 23, 23, DateTimeKind.Utc);
-        string hash = JwtTools.TOTP(datetime, secret, 10);
+        string hash = JwtTools.TOTP(datetime, secret, 600);
         Assert.IsNotNull(hash);
         Console.WriteLine($"TOTP :{hash}");
     }
@@ -47,18 +47,18 @@ public class JwtToolsTests
         string otherSecret = "o8Ql4xAzMnVf0xaSW7f+rgLkvyAVdF+OacsaG09qfzplSY912gToi4XUwltG0X9Dl4YlM9VwFYTNwj30ydUsJQ==";
 
         DateTime datetime = new(2021, 12, 23, 10, 23, 23, DateTimeKind.Utc);
-        string hash = JwtTools.TOTP(datetime, secret, 10);
+        string hash = JwtTools.TOTP(datetime, secret, 300);
         Assert.IsNotNull(hash);
 
         // valid if time is the same
-        Assert.IsTrue(JwtTools.ValidateTOTP(datetime, hash, secret, 10));
+        Assert.IsTrue(JwtTools.ValidateTOTP(datetime, hash, secret, 300));
         // valid if time is within the window
-        Assert.IsTrue(JwtTools.ValidateTOTP(datetime.AddMinutes(15), hash, secret, 10));
-        Assert.IsTrue(JwtTools.ValidateTOTP(datetime.AddMinutes(-14), hash, secret, 10));
+        Assert.IsTrue(JwtTools.ValidateTOTP(datetime.AddMinutes(1), hash, secret, 300));
+        Assert.IsTrue(JwtTools.ValidateTOTP(datetime.AddMinutes(-1), hash, secret, 300));
 
         // invalid if time is outside the window
-        Assert.IsFalse(JwtTools.ValidateTOTP(datetime.AddMinutes(16), hash, secret, 10));
-        Assert.IsFalse(JwtTools.ValidateTOTP(datetime.AddMinutes(-15), hash, secret, 10));
+        Assert.IsFalse(JwtTools.ValidateTOTP(datetime.AddMinutes(16), hash, secret, 300));
+        Assert.IsFalse(JwtTools.ValidateTOTP(datetime.AddMinutes(-15), hash, secret, 300));
 
         // invalid is timeslot is different
         Assert.IsFalse(JwtTools.ValidateTOTP(datetime, hash, secret, 9));
@@ -106,9 +106,39 @@ public class JwtToolsTests
 
         Console.WriteLine(result);
 
-        ClaimsPrincipal principal = JwtTools.GetPrincipalFromJwt(result, securityKey);
+        ClaimsPrincipal principal = JwtTools.GetPrincipalFromJwt(result, securityKey, issuer: "http://JwtToolsTests", audience: "http://localhost");
         Assert.IsNotNull(principal);
         Assert.IsTrue(principal.IsInRole("testuser"));
+    }
+
+    [TestMethod]
+    public void GetPrincipalFromJwtThrowsWithWrongIssuer()
+    {
+        byte[] securityKey = Convert.FromBase64String("OmuURxFCm3Vu4zXx8IqtHbhY8fsz9YtF++NDaD4rwj+nfqBU/ehaXbXMIjqAf51w3dnAFDmjWblW0EP6EuyE/w==");
+        string token = CreateToken(securityKey);
+
+        Assert.Throws<WebTokenException>(() =>
+            JwtTools.GetPrincipalFromJwt(token, securityKey, issuer: "http://wrong-issuer", audience: "http://localhost"));
+    }
+
+    [TestMethod]
+    public void GetPrincipalFromJwtThrowsWithWrongAudience()
+    {
+        byte[] securityKey = Convert.FromBase64String("OmuURxFCm3Vu4zXx8IqtHbhY8fsz9YtF++NDaD4rwj+nfqBU/ehaXbXMIjqAf51w3dnAFDmjWblW0EP6EuyE/w==");
+        string token = CreateToken(securityKey);
+
+        Assert.Throws<WebTokenException>(() =>
+            JwtTools.GetPrincipalFromJwt(token, securityKey, issuer: "http://JwtToolsTests", audience: "http://wrong-audience"));
+    }
+
+    [TestMethod]
+    public void GetPrincipalFromJwtWithoutIssuerAudienceSkipsValidation()
+    {
+        byte[] securityKey = Convert.FromBase64String("OmuURxFCm3Vu4zXx8IqtHbhY8fsz9YtF++NDaD4rwj+nfqBU/ehaXbXMIjqAf51w3dnAFDmjWblW0EP6EuyE/w==");
+        string token = CreateToken(securityKey);
+
+        ClaimsPrincipal principal = JwtTools.GetPrincipalFromJwt(token, securityKey);
+        Assert.IsNotNull(principal);
     }
 
     private static string CreateToken(byte[] securityKey)

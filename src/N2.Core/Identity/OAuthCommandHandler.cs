@@ -123,6 +123,8 @@ public class OAuthCommandHandler : BaseCommandHandler<TokenRequest, TokenRespons
 
         string newToken = JwtTools.ConvertToJwt(claims, audience, _config.Issuer, _secret, tokenTimeOut);
 
+        // if the refresh token registration takes too long,
+        // we return the access token without a refresh token
         if (await Task.WhenAny(refreshTask, Task.Delay(200)) != refreshTask)
         {
             refreshToken = Guid.Empty;
@@ -145,8 +147,22 @@ public class OAuthCommandHandler : BaseCommandHandler<TokenRequest, TokenRespons
             throw new UnauthorizedException("No Accesstoken");
         }
         string decoded = Encoding.UTF8.GetString(Convert.FromBase64String(token.AccessToken));
-        string[] user = decoded.Split(':');
-        return await _identityManager.LogonUser(user[0], user[1]);
+        int splitIndex;
+#if (NETSTANDARD2_0)
+        splitIndex = decoded.IndexOf(':');
+#else
+        splitIndex = decoded.IndexOf(':', StringComparison.Ordinal);
+#endif
+        if (splitIndex == -1) {
+            throw new UnauthorizedException("No Accesstoken");
+        }
+        var username = decoded.Substring(0, splitIndex);
+        var password = decoded.Substring(splitIndex + 1);
+        if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+        {
+            throw new UnauthorizedException("No Accesstoken");
+        }
+        return await _identityManager.LogonUser(username, password);
     }
 
     private async Task<Guid> HandleRefresh(Token token)
@@ -174,7 +190,7 @@ public class OAuthCommandHandler : BaseCommandHandler<TokenRequest, TokenRespons
             throw new UnauthorizedException("No Access");
         }
 
-        if (JwtTools.ValidateTOTP(DateTime.UtcNow, secret, token.ClientSecret!, 10))
+        if (JwtTools.ValidateTOTP(DateTime.UtcNow, secret, token.ClientSecret!, (int)_config.ReplayWindowInSeconds))
         {
             return await _identityManager.LogonUserWithSecret(token.ClientId!, token.ClientSecret!);
         }

@@ -2,8 +2,8 @@
 
 public class BackgroundWorker : IBackgroundWorker, IDisposable
 {
-    private static readonly object LockObject = new();
-    private static bool IsActivated;
+    private readonly object LockObject = new();
+    private bool IsActivated;
     private readonly Func<CancellationToken, Task> job;
     private readonly System.Timers.Timer restartTimer;
     private Task? currentTask;
@@ -11,6 +11,7 @@ public class BackgroundWorker : IBackgroundWorker, IDisposable
     private bool paused;
     private CancellationTokenSource? tokenSource;
     private WorkerStatus? workerStatus;
+    private volatile bool stopped;
 
     public BackgroundWorker(
         int millisecondsInterval,
@@ -83,6 +84,7 @@ public class BackgroundWorker : IBackgroundWorker, IDisposable
 
     public void Restart()
     {
+        stopped = false;
         restartTimer.AutoReset = true;
         restartTimer.Start();
         StartJob();
@@ -110,13 +112,16 @@ public class BackgroundWorker : IBackgroundWorker, IDisposable
             return;
         }
 
+        stopped = false;
         tokenSource = null;
         DoWork();
     }
 
     public void StopJob()
     {
+        stopped = true;
         restartTimer.AutoReset = false;
+        restartTimer.Stop();
         tokenSource?.Cancel();
         if (workerStatus == null)
         {
@@ -130,7 +135,7 @@ public class BackgroundWorker : IBackgroundWorker, IDisposable
         currentTask?.Wait();
     }
 
-    protected static bool CanActivateJob()
+    protected bool CanActivateJob()
     {
         lock (LockObject)
         {
@@ -144,7 +149,7 @@ public class BackgroundWorker : IBackgroundWorker, IDisposable
         return true;
     }
 
-    protected static void DeactivateJob()
+    protected void DeactivateJob()
     {
         lock (LockObject)
         {
@@ -171,6 +176,11 @@ public class BackgroundWorker : IBackgroundWorker, IDisposable
 
     private void DoWork()
     {
+        if (stopped)
+        {
+            return;
+        }
+
         if (tokenSource != null && tokenSource.IsCancellationRequested)
         {
             return;

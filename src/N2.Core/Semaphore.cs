@@ -48,22 +48,15 @@ public class Semaphore
             {
                 if (CurrentValue < MaxValue)
                 {
-                    CurrentValue+=1;
+                    CurrentValue += 1;
                     return true;
                 }
             }
-            if (CurrentValue > MaxValue)
+            if (stopwatch.Elapsed > timeSpan)
             {
-                CurrentValue -= 1;
-                if (stopwatch.Elapsed > timeSpan)
-                {
-                    return false;
-                }
+                return false;
             }
-            else
-            {
-                return true;
-            }
+            Thread.Sleep(1);
         }
     }
 

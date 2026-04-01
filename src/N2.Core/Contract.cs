@@ -16,8 +16,6 @@ namespace N2.Core
         /// <param name="item">
         /// The item.
         /// </param>
-        [Conditional("DEBUG")]
-        [Conditional("CODECONTRACTS")]
         public static void ValidName(string? item)
         {
             if (string.IsNullOrWhiteSpace(item))
@@ -55,8 +53,6 @@ namespace N2.Core
         /// <param name="nameOfItem">
         /// The name of item.
         /// </param>
-        [Conditional("DEBUG")]
-        [Conditional("CODECONTRACTS")]
         public static void NotNull(object? item, string nameOfItem)
         {
             if (item == null)

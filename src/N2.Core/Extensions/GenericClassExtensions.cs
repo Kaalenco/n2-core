@@ -1,3 +1,5 @@
+using System.Collections.Concurrent;
+using System.Reflection;
 using System.Text.Json;
 
 namespace N2.Core.Extensions;
@@ -8,6 +10,8 @@ public static class GenericClassExtensions
     {
         WriteIndented = true
     };
+
+    private static readonly ConcurrentDictionary<(Type, Type), (PropertyInfo Source, PropertyInfo? Target)[]> _mappingCache = new();
 
     public static TTarget? CopyFrom<TSource, TTarget>(this TTarget t, TSource s)
         where TTarget : class
@@ -24,36 +28,36 @@ public static class GenericClassExtensions
 
     public static void MapPropertyValuesByName<TSource, TTarget>(this TSource s, TTarget t)
     {
-        Type sourceType = typeof(TSource);
-        Type targetType = typeof(TTarget);
         Contract.NotNull(s, nameof(s));
         Contract.NotNull(t, nameof(t));
-        System.Reflection.PropertyInfo[] sourceProperties = sourceType.GetProperties();
-        System.Reflection.PropertyInfo[] targetProperties = targetType.GetProperties();
-        foreach (System.Reflection.PropertyInfo? sp in sourceProperties)
-        {
-            if (!sp.CanRead)
-            {
-                continue;
-            }
 
-            System.Reflection.PropertyInfo? tp = Array.Find(targetProperties, x => string.Equals(x.Name, sp.Name, StringComparison.OrdinalIgnoreCase));
-            if (tp != null)
+        (PropertyInfo Source, PropertyInfo? Target)[] mappings = _mappingCache.GetOrAdd(
+            (typeof(TSource), typeof(TTarget)),
+            static key =>
             {
-                if (!tp.CanWrite)
-                {
-                    continue;
-                }
-                System.Reflection.MethodInfo? setMethod = tp.GetSetMethod();
+                PropertyInfo[] sourceProperties = key.Item1.GetProperties();
+                PropertyInfo[] targetProperties = key.Item2.GetProperties();
+                return sourceProperties
+                    .Where(sp => sp.CanRead)
+                    .Select(sp =>
+                    {
+                        PropertyInfo? tp = Array.Find(targetProperties, x => string.Equals(x.Name, sp.Name, StringComparison.OrdinalIgnoreCase));
+                        if (tp == null || !tp.CanWrite)
+                            return ((PropertyInfo Source, PropertyInfo? Target))(sp, null);
 #pragma warning disable RCS1146 // Use conditional access
-                if (setMethod == null || setMethod.IsPrivate || setMethod.IsFamily)
-                {
-                    continue;
-                }
+                        MethodInfo? setMethod = tp.GetSetMethod();
+                        if (setMethod == null || setMethod.IsPrivate || setMethod.IsFamily)
+                            return ((PropertyInfo Source, PropertyInfo? Target))(sp, null);
 #pragma warning restore RCS1146 // Use conditional access
-                object? value = sp.GetValue(s);
-                tp.SetValue(t, value);
-            }
+                        return ((PropertyInfo Source, PropertyInfo? Target))(sp, tp);
+                    })
+                    .ToArray();
+            });
+
+        foreach ((PropertyInfo sp, PropertyInfo? tp) in mappings)
+        {
+            if (tp != null)
+                tp.SetValue(t, sp.GetValue(s));
         }
     }
 

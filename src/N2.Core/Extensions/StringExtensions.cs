@@ -71,6 +71,8 @@ public static class StringExtensions
         return dateTimeOffset.AddHours(dateTimeOffset.Offset.Hours);
     }
 
+    private static readonly char[] sanitizeCharacters = new[] { ' ', '.', '<', '>', ':', '"', '/', '\\', '|', '?', '*' };
+
     /// <summary>
     /// Remove illegal characters from a file name.
     /// The filename should not contain path information.
@@ -86,8 +88,30 @@ public static class StringExtensions
         }
 #pragma warning disable CA1308 // Normalize strings to uppercase
         return fileName
-            .Replace(' ', '-')
+            .ReplaceChars(sanitizeCharacters, '-')
             .ToLower(CultureInfo.InvariantCulture);
+    }
+
+    public static string ReplaceChars(this string value, char[] oldChars, char newChar)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return string.Empty;
+        }
+        var result = new char[value.Length];
+        for(int i = 0; i < result.Length; i++)
+        {
+            var c = value[i];
+            if(oldChars.Contains(c))
+            {
+                result[i] = newChar;
+            }
+            else
+            {
+                result[i] = c;
+            }
+        }
+        return new string(result);
     }
 
     public static int GetStableHashCode(this string str)

@@ -18,9 +18,9 @@
     <RootNamespace>N2.Core</RootNamespace>
     <ProductName>N2 Core libraries</ProductName>
 
-    <Version>1.5.2</Version>
-    <ProductVersion>1.5.2</ProductVersion>
-    <PackageVersion>1.5.2</PackageVersion>
+    <Version>1.6.0</Version>
+    <ProductVersion>1.6.0</ProductVersion>
+    <PackageVersion>1.6.0</PackageVersion>
 
     <PackageId>N2.Core</PackageId>
     <PackageType>Dependency</PackageType>
@@ -75,7 +75,7 @@
     <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="10.0.5" />
     <PackageReference Include="System.Identitymodel.Tokens.Jwt" Version="8.17.0" />
     <PackageReference Include="System.IO.Abstractions" Version="22.1.0" />
-    <PackageReference Include="N2.Core.Abstractions" Version="1.5.2" />
+    <PackageReference Include="N2.Core.Abstractions" Version="1.6.1" />
   </ItemGroup>
 
   <ItemGroup Condition="(('$(TargetFramework)'=='netstandard2.0') Or ('$(TargetFramework)'=='netstandard2.1'))">
