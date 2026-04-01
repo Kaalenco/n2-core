@@ -18,9 +18,9 @@
     <RootNamespace>N2.Core</RootNamespace>
     <ProductName>N2 Core libraries</ProductName>
 
-    <Version>1.6.0</Version>
-    <ProductVersion>1.6.0</ProductVersion>
-    <PackageVersion>1.6.0</PackageVersion>
+    <Version>1.6.1</Version>
+    <ProductVersion>1.6.1</ProductVersion>
+    <PackageVersion>1.6.1</PackageVersion>
 
     <PackageId>N2.Core</PackageId>
     <PackageType>Dependency</PackageType>
