@@ -103,7 +103,7 @@ public class WithOAuthCommandHandler
 
         _identityManager.Setup(m => m.LogonUser("user", "correctpassword")).ReturnsAsync(userSid);
         _identityManager.Setup(m => m.GetClaims(userSid, "http://localhost", "api"))
-            .ReturnsAsync(new[] { new Claim(ClaimTypes.Name, "user") });
+            .ReturnsAsync([new Claim(ClaimTypes.Name, "user")]);
         _identityManager.Setup(m => m.RegisterRefreshToken(userSid, "http://localhost", "api", It.IsAny<Guid>(), It.IsAny<DateTime>()))
             .Returns(Task.CompletedTask);
 
@@ -159,7 +159,7 @@ public class WithOAuthCommandHandler
 
         _identityManager.Setup(m => m.LogonUser("user", "pass:word")).ReturnsAsync(userSid);
         _identityManager.Setup(m => m.GetClaims(userSid, "http://localhost", "api"))
-            .ReturnsAsync(new[] { new Claim(ClaimTypes.Name, "user") });
+            .ReturnsAsync([new Claim(ClaimTypes.Name, "user")]);
         _identityManager.Setup(m => m.RegisterRefreshToken(userSid, "http://localhost", "api", It.IsAny<Guid>(), It.IsAny<DateTime>()))
             .Returns(Task.CompletedTask);
 
@@ -220,7 +220,7 @@ public class WithOAuthCommandHandler
 
         _identityManager.Setup(m => m.RefreshUserToken(refreshToken)).ReturnsAsync(userSid);
         _identityManager.Setup(m => m.GetClaims(userSid, "http://localhost", "api"))
-            .ReturnsAsync(new[] { new Claim(ClaimTypes.Name, "user") });
+            .ReturnsAsync([new Claim(ClaimTypes.Name, "user")]);
         _identityManager.Setup(m => m.RegisterRefreshToken(userSid, "http://localhost", "api", It.IsAny<Guid>(), It.IsAny<DateTime>()))
             .Returns(Task.CompletedTask);
 

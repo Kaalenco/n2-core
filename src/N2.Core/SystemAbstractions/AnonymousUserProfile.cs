@@ -18,6 +18,8 @@ public class AnonymousUserProfile : IUserContext
     public string Description => string.Empty;
     public IEnumerable<UserAlert> Alerts { get; } = [];
     public bool IsAuthenticated { get; }
+    public Guid CurrentTenantId { get; }
+    public string CurrentTenantName { get => string.Empty; }
 
     public bool IsInRole(string role) => false;
     public bool HasPolicy(string policy) => false;
@@ -28,4 +30,8 @@ public class AnonymousUserProfile : IUserContext
     public bool CanModifyRights() => false;
     public bool CanDesign() => false;
     public bool IsAdmin() => false;
+    public bool SetTenantContext(Guid tenantId) => false;
+    public bool SetTenantContext(string tenantName) => false;
+    public bool IsInTenant(Guid tenantId) => false;
+    public bool IsInTenant(string tenantName) => false;
 }

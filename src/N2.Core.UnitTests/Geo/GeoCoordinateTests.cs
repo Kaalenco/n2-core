@@ -98,7 +98,7 @@ public class GeoCoordinateTests
         const double expected = 629060.759879635;
         var delta = distance - expected;
 
-        Assert.IsTrue(delta < 1e-8);
+        Assert.IsLessThan(1e-8, delta);
     }
 
     [TestMethod]

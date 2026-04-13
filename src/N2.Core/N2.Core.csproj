@@ -18,9 +18,9 @@
     <RootNamespace>N2.Core</RootNamespace>
     <ProductName>N2 Core libraries</ProductName>
 
-    <Version>1.6.1</Version>
-    <ProductVersion>1.6.1</ProductVersion>
-    <PackageVersion>1.6.1</PackageVersion>
+    <Version>1.6.3</Version>
+    <ProductVersion>1.6.3</ProductVersion>
+    <PackageVersion>1.6.3</PackageVersion>
 
     <PackageId>N2.Core</PackageId>
     <PackageType>Dependency</PackageType>
@@ -39,7 +39,7 @@
   <PropertyGroup>
     <WarningLevel>6</WarningLevel>
     <WarningsAsErrors></WarningsAsErrors>
-    <NoWarn>S1135;RCS1021;CA1040;CA1055;CA1308;CS1591;CA1002;CA1819;CA2007;CA1859;CA1812;S2094;CA1707;IDE0290;S125;RMG020;IDE0060;CA1510</NoWarn>
+    <NoWarn>S1135;RCS1021;CA1040;CA1055;CA1308;CS1591;CA1002;CA1819;CA2007;CA1859;CA1812;S2094;CA1707;IDE0290;S125;RMG020;IDE0057;IDE0060;CA1510</NoWarn>
     <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
     <EnableNETAnalyzers>True</EnableNETAnalyzers>
     <AnalysisLevel>latest-recommended</AnalysisLevel>
@@ -75,14 +75,7 @@
     <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="10.0.5" />
     <PackageReference Include="System.Identitymodel.Tokens.Jwt" Version="8.17.0" />
     <PackageReference Include="System.IO.Abstractions" Version="22.1.0" />
-    <PackageReference Include="N2.Core.Abstractions" Version="1.6.1" />
-  </ItemGroup>
-
-  <ItemGroup Condition="(('$(TargetFramework)'=='netstandard2.0') Or ('$(TargetFramework)'=='netstandard2.1'))">
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="PubSub\" />
+    <PackageReference Include="N2.Core.Abstractions" Version="1.6.3" />
   </ItemGroup>
 
 </Project>

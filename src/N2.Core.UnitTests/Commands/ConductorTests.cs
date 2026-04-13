@@ -1,7 +1,7 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
 
-using Kaalenco.Common.Extensions;
+using N2.Core.Extensions;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -118,7 +118,7 @@ public class ConductorTests
             }
             ;
         }
-        Assert.AreEqual(2, result.Count);
+        Assert.HasCount(2, result);
         Assert.AreEqual(0, sut.CallbackHandlerCount);
     }
 }

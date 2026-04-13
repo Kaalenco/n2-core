@@ -71,7 +71,7 @@ public static class StringExtensions
         return dateTimeOffset.AddHours(dateTimeOffset.Offset.Hours);
     }
 
-    private static readonly char[] sanitizeCharacters = new[] { ' ', '.', '<', '>', ':', '"', '/', '\\', '|', '?', '*' };
+    private static readonly char[] sanitizeCharacters = [' ', '.', '<', '>', ':', '"', '/', '\\', '|', '?', '*'];
 
     /// <summary>
     /// Remove illegal characters from a file name.
@@ -188,10 +188,10 @@ public static class StringExtensions
         }
 
         // Convert the string to a guid, if it fits
-        byte[] byteData = value.ToUpperInvariant().Select(c => (byte)c).ToArray();
+        byte[] byteData = [.. value.ToUpperInvariant().Select(c => (byte)c)];
         if (byteData.Length > 11)
         {
-            byteData = byteData.Take(11).ToArray();
+            byteData = [.. byteData.Take(11)];
         }
         byte[] guidData = new byte[16];
         byteData.CopyTo(guidData, 0);
@@ -213,7 +213,7 @@ public static class StringExtensions
         byte length = bytes[11];
         if (bytes[12] == 0xda && bytes[13] == 0xda && bytes[14] == 0x00 && bytes[15] == 0xff)
         {
-            return new string(bytes.Take(length).Select(b => (char)b).ToArray());
+            return new string([.. bytes.Take(length).Select(b => (char)b)]);
         }
         return value.ToString();
     }
@@ -237,7 +237,7 @@ public static class StringExtensions
     /// <remarks> From : https://stackoverflow.com/questions/11121936/dotnet-soundex-function</remarks>
     public static string Soundex(this string data)
     {
-        char[] result = new char[] { '0', '0', '0', '0', };
+        char[] result = ['0', '0', '0', '0',];
 
         if (data != null && data.Length > 0)
         {

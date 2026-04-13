@@ -31,12 +31,10 @@ public static class FileHelpers
 
     public static string ComputeSha384Hash(Stream stream)
     {
-        using (SHA384 sha384 = SHA384.Create())
-        {
-            byte[] hashBytes = sha384.ComputeHash(stream);
-            return ToHexString(hashBytes)
-                .ToUpperInvariant();
-        }
+        using SHA384 sha384 = SHA384.Create();
+        byte[] hashBytes = sha384.ComputeHash(stream);
+        return ToHexString(hashBytes)
+            .ToUpperInvariant();
     }
 
     public static string ToHexString(this byte[] bytes)

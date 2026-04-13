@@ -166,10 +166,8 @@ namespace N2.Core.Identity
             DateTime refTime = new(referenceTime.Year, referenceTime.Month, referenceTime.Day, referenceTime.Hour, referenceTime.Minute, 0);
             byte[] key = Convert.FromBase64String(secret);
             long epoch = (long)(refTime - UnixEpoch).TotalSeconds / timeWindowInSeconds;
-            using (HMACSHA256 hmac = new(key))
-            {
-                return Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(epoch.ToString(CultureInfo.InvariantCulture))));
-            }
+            using HMACSHA256 hmac = new(key);
+            return Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(epoch.ToString(CultureInfo.InvariantCulture))));
         }
 
         /// <summary>

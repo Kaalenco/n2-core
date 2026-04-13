@@ -2,7 +2,7 @@ using Microsoft.Extensions.Logging;
 
 using N2.Core.Commands;
 
-namespace NCore.Common.Extensions;
+namespace N2.Core.Extensions;
 
 public static class LoggerExtensions
 {

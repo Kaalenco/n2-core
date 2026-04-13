@@ -5,7 +5,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-using NCore.Common.Extensions;
+using N2.Core.Extensions;
 
 
 namespace N2.Core.Commands;

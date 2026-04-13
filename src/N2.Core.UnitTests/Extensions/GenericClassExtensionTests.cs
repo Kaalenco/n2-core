@@ -152,8 +152,8 @@ public class GenericClassExtensionTests
         string result = source.SerializeForView();
 
         Assert.IsNotNull(result);
-        StringAssert.Contains(result, "John", StringComparison.Ordinal);
-        StringAssert.Contains(result, "25", StringComparison.Ordinal);
+        Assert.Contains("John", result, StringComparison.Ordinal);
+        Assert.Contains("25", result, StringComparison.Ordinal);
     }
 
     [TestMethod]

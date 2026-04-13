@@ -89,7 +89,7 @@ public class JwtToolsTests
     [TestMethod]
     public void JwtToolsCanGetPrincipalFromNullRequest()
     {
-        byte[] key = new byte[] { 0 };
+        byte[] key = [0];
         ClaimsPrincipal result = JwtTools.GetPrincipal(null!, key);
         Assert.IsNotNull(result);
     }
@@ -143,13 +143,13 @@ public class JwtToolsTests
 
     private static string CreateToken(byte[] securityKey)
     {
-        Claim[] claims = new Claim[]
-{
+        Claim[] claims =
+[
             new(ClaimType.PrimarySid.ClaimName(), Guid.NewGuid().ToString() ),
             new(ClaimType.Role.ClaimName(), "testuser"),
             new(ClaimType.UserName.ClaimName(), "TestUser"),
             new(ClaimType.Email.ClaimName(), "user@mycompany.local")
-};
+];
         return JwtTools.ConvertToJwt(claims, "http://localhost", "http://JwtToolsTests", securityKey, DateTime.UtcNow.AddMinutes(5));
     }
 }

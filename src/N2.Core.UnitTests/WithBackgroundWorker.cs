@@ -132,8 +132,8 @@ public class WithBackgroundWorker
         worker1.StopJob();
         worker2.StopJob();
 
-        Assert.IsTrue(worker1Count > 0, "worker1 should have executed");
-        Assert.IsTrue(worker2Count > 0, "worker2 should have executed independently");
+        Assert.IsGreaterThan(0, worker1Count, "worker1 should have executed");
+        Assert.IsGreaterThan(0, worker2Count, "worker2 should have executed independently");
     }
 
     [TestMethod]

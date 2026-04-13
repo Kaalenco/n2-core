@@ -18,7 +18,7 @@ public sealed class WithValidator
     public void NewValidatorIsValid()
     {
         Assert.IsTrue(validator.Valid);
-        Assert.AreEqual(0, validator.Results.Count);
+        Assert.IsEmpty(validator.Results);
     }
 
     // NotNullOrEmpty
@@ -31,7 +31,7 @@ public sealed class WithValidator
         validator.NotNullOrEmpty<TestModel>(value!, "must have value");
 
         Assert.IsFalse(validator.Valid);
-        Assert.AreEqual(1, validator.Results.Count);
+        Assert.HasCount(1, validator.Results);
         Assert.AreEqual(ErrorCode.ValueNullOrEmpty, validator.Results[0].ErrorCode);
         Assert.AreEqual("must have value", validator.Results[0].Message);
         Assert.AreEqual(nameof(TestModel), validator.Results[0].TypeName);
@@ -199,6 +199,6 @@ public sealed class WithValidator
         validator.ZeroOrPositive<TestModel>(-5, "field3 negative");
 
         Assert.IsFalse(validator.Valid);
-        Assert.AreEqual(3, validator.Results.Count);
+        Assert.HasCount(3, validator.Results);
     }
 }

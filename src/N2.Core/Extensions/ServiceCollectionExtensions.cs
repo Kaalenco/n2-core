@@ -1,5 +1,3 @@
-using System.IO.Abstractions;
-
 using Kaalenco.Common.SystemAbstractions;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -10,7 +8,10 @@ using N2.Core.Commands;
 using N2.Core.SystemAbstractions;
 using N2.Core.Telemetry;
 
-namespace Kaalenco.Common.Extensions;
+using System.IO.Abstractions;
+using System.Reflection;
+
+namespace N2.Core.Extensions;
 
 public static class SystemServiceConfiguration
 {
@@ -20,6 +21,53 @@ public static class SystemServiceConfiguration
         services.TryAddSingleton<ITimeSystem>(new TimeSystem());
         services.TryAddSingleton<IActivityLoggerFactory>(new ActivityLoggerFactory());
         return services;
+    }
+
+
+    /// <summary>
+    /// Adds the command validators.
+    /// </summary>
+    /// <param name="serviceCollection">
+    /// The service collection.
+    /// </param>
+    /// <param name="typeReference">
+    /// The type reference.
+    /// </param>
+    /// <returns>
+    /// An IServiceCollection.
+    /// </returns>
+    public static IServiceCollection AddValidators(
+        this IServiceCollection serviceCollection,
+        Type typeReference)
+    {
+        Contract.NotNull(typeReference, nameof(typeReference));
+        var assembly = Assembly.GetAssembly(typeReference);
+        if (assembly == null)
+        {
+            return serviceCollection;
+        }
+
+        return AddInterfacesOfType<IRuntimeValidator>(serviceCollection, assembly);
+    }
+
+    /// <summary>
+    /// Adds the command validators.
+    /// </summary>
+    /// <param name="serviceCollection">
+    /// The service collection.
+    /// </param>
+    /// <param name="assembly">
+    /// The assembly.
+    /// </param>
+    /// <returns>
+    /// An IServiceCollection.
+    /// </returns>
+    public static IServiceCollection AddValidators(
+        this IServiceCollection serviceCollection,
+        Assembly assembly)
+    {
+        Contract.NotNull(assembly, nameof(assembly));
+        return AddInterfacesOfType<IRuntimeValidator>(serviceCollection, assembly);
     }
 
     /// <summary>
@@ -56,6 +104,26 @@ public static class SystemServiceConfiguration
     /// <param name="serviceCollection">
     /// The service collection.
     /// </param>
+    /// <param name="assembly">
+    /// The assembly.
+    /// </param>
+    /// <returns>
+    /// An IServiceCollection.
+    /// </returns>
+    public static IServiceCollection AddCommandHandlers(
+        this IServiceCollection serviceCollection,
+        Assembly assembly)
+    {
+        Contract.NotNull(assembly, nameof(assembly));
+        return AddInterfacesOfType<ICommandHandler>(serviceCollection, assembly);
+    }
+
+    /// <summary>
+    /// Adds the command handlers.
+    /// </summary>
+    /// <param name="serviceCollection">
+    /// The service collection.
+    /// </param>
     /// <param name="typeReference">
     /// The type reference.
     /// </param>
@@ -66,22 +134,18 @@ public static class SystemServiceConfiguration
         this IServiceCollection serviceCollection,
         Type typeReference)
     {
-        if (typeReference == null)
-        {
-            return serviceCollection;
-        }
-
-        System.Reflection.Assembly? assembly = System.Reflection.Assembly.GetAssembly(typeReference);
+        Contract.NotNull(typeReference, nameof(typeReference));
+        var assembly = Assembly.GetAssembly(typeReference);
         if (assembly == null)
         {
             return serviceCollection;
         }
 
-        return AddCommandHandlers(serviceCollection, assembly);
+        return AddInterfacesOfType<ICommandHandler>(serviceCollection, assembly);
     }
 
     /// <summary>
-    /// Adds the command handlers.
+    /// Adds the classes to the servicecollection with interfaces of type T.
     /// </summary>
     /// <param name="serviceCollection">
     /// The service collection.
@@ -92,20 +156,58 @@ public static class SystemServiceConfiguration
     /// <returns>
     /// An IServiceCollection.
     /// </returns>
-    public static IServiceCollection AddCommandHandlers(this IServiceCollection serviceCollection, System.Reflection.Assembly assembly)
+    public static IServiceCollection AddInterfacesOfType<T>(
+        this IServiceCollection serviceCollection,
+        Assembly assembly)
     {
-        if (assembly == null)
+        Contract.NotNull(assembly, nameof(assembly));
+        foreach (var type in assembly.GetTypes())
         {
-            throw new ArgumentNullException(nameof(assembly));
-        }
-
-        foreach (Type type in assembly.GetTypes())
-        {
-            foreach (Type reference in type.GetInterfaces())
+            if (type.IsAbstract || type.IsNested)
             {
-                if (reference.IsAssignableTo(typeof(ICommandHandler)) && reference.Name != nameof(ICommandHandler))
+                continue;
+            }
+
+            foreach (var reference in type.GetInterfaces())
+            {
+                if (reference.IsAssignableTo(typeof(T)) && reference.Name != nameof(T))
                 {
-                    serviceCollection.AddScoped(reference, type);
+                    if (reference.IsGenericType)
+                    {
+                        // Register generic type
+                        var genericType = reference.GetGenericTypeDefinition();
+                        var genericArguments = type.GetGenericArguments();
+
+                        if (genericArguments.Length == 0)
+                        {
+                            // Register as generic type, if not already registered with the same implementation
+                            if (serviceCollection.Any(s => s.ServiceType == reference && s.ImplementationType == type))
+                            {
+                                continue; // Skip if already registered
+                            }
+                            serviceCollection.AddScoped(reference, type);
+                            continue;
+                        }
+
+                        var constructedType = genericType.MakeGenericType(genericArguments);
+
+                        // check if the constructed type is already registered with the same implementation
+                        if (serviceCollection.Any(s => s.ServiceType == constructedType && s.ImplementationType == type))
+                        {
+                            continue; // Skip if already registered
+                        }
+
+                        serviceCollection.AddScoped(constructedType, type);
+                    }
+                    else
+                    {
+                        // Register non-generic type, if not already registered with the same implementation
+                        if (serviceCollection.Any(s => s.ServiceType == reference && s.ImplementationType == type))
+                        {
+                            continue; // Skip if already registered
+                        }
+                        serviceCollection.AddScoped(reference, type);
+                    }
                 }
             }
         }
