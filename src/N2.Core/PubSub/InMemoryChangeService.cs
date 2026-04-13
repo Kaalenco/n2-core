@@ -4,9 +4,7 @@ using Microsoft.Extensions.Logging;
 using N2.Core.Commands;
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Text;
 
 namespace N2.Core.PubSub;
 
@@ -20,31 +18,32 @@ namespace N2.Core.PubSub;
 /// within the application's dependency injection container.</remarks>
 public class InMemoryChangeService : INotifyChangeService
 {
-    private readonly ConcurrentDictionary<string, INotifyChangeListener[]> _listeners = new();
+    // Copy-on-write array: writes are serialized via _writeLock, reads in ItemModified are lock-free.
+    private volatile INotifyChangeListener[] _listeners = [];
+    private readonly object _writeLock = new();
     private readonly ILogger _logger;
 
     public InMemoryChangeService(ILogger<InMemoryChangeService> logger)
     {
-        // No initialization required for in-memory implementation
         _logger = logger;
         _logger.ServiceInitialized();
     }
 
-    public void AddSubscription(INotifyChangeListener listener) {
-
+    public void AddSubscription(INotifyChangeListener listener)
+    {
         if (listener == null)
         {
             return;
         }
-            var typeName = listener.GetType().FullName ?? "UnknownType";
+
+        var typeName = listener.GetType().FullName ?? "UnknownType";
 #pragma warning disable CA1031 // Do not catch general exception types
         try
         {
-
-            var listeners = _listeners.GetOrAdd(typeName, _ => []);
-            var newList = listeners.ToList();
-            newList.Add(listener);
-            _listeners[typeName] = [.. newList];
+            lock (_writeLock)
+            {
+                _listeners = [.. _listeners, listener];
+            }
             _logger.SubscriptionInitialized(typeName);
         }
         catch (Exception ex)
@@ -57,36 +56,30 @@ public class InMemoryChangeService : INotifyChangeService
     public void ItemModified<T>(TrackingId trackingId, T item) where T : IItemChanged
     {
         var typeName = typeof(T).FullName ?? "UnknownType";
-        if (_listeners.TryGetValue(typeName, out var listeners))
+        var snapshot = _listeners;
+        foreach (var listener in snapshot)
         {
-            foreach (var listener in listeners)
-            {
 #pragma warning disable CA1031 // Do not catch general exception types
-                try
-                {
-                    listener.OnItemModified(item);
-                }
-                catch (Exception ex)
-                {
-                    _logger.ItemModifiedFailure( typeName, ex);
-                }
-#pragma warning restore CA1031 // Do not catch general exception types
+            try
+            {
+                listener.OnItemModified(item);
             }
+            catch (Exception ex)
+            {
+                _logger.ItemModifiedFailure(typeName, ex);
+            }
+#pragma warning restore CA1031 // Do not catch general exception types
         }
     }
 
-    public void RemoveSubscription(INotifyChangeListener listener) {
+    public void RemoveSubscription(INotifyChangeListener listener)
+    {
         if (listener == null) { return; }
-        var typeName = listener.GetType().FullName ?? "UnknownType";
-        foreach (var kvp in _listeners)
+        lock (_writeLock)
         {
-            var listeners = kvp.Value;
-            if (listeners.Contains(listener))
-            {
-                var newList = listeners.ToList();
-                newList.Remove(listener);
-                _listeners[kvp.Key] = [.. newList];
-            }
+            var newList = _listeners.ToList();
+            newList.Remove(listener);
+            _listeners = [.. newList];
         }
     }
 
