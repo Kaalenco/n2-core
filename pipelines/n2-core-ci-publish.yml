@@ -13,16 +13,7 @@ trigger:
     - docs/**
     - '*.md'
 
-pr:
-  branches:
-    include:
-    - trunk
-  paths:
-    include:
-    - src/N2.*/**
-    exclude:
-    - docs/**
-    - '*.md'
+pr: none
 
 pool:
   vmImage: 'ubuntu-latest'
