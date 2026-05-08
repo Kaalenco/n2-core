@@ -17,6 +17,10 @@ pool:
 variables:
   buildConfiguration: 'Release'
 
+retention:
+  default:
+    daysToKeep: 1
+
 stages:
 
 - stage: CI
@@ -72,3 +76,22 @@ stages:
       condition: always()
       inputs:
         summaryFileLocation: '$(Agent.TempDirectory)/**/coverage.cobertura.xml'
+
+    - pwsh: |
+        $retainUntil = (Get-Date).AddDays(7).ToUniversalTime().ToString("o")
+        $uri = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)$($env:SYSTEM_TEAMPROJECTID)/_apis/build/retention/leases?api-version=7.1"
+        $body = ConvertTo-Json -Compress -InputObject @(
+          @{
+            ownerId         = "Pipeline:$($env:SYSTEM_DEFINITIONID)"
+            definitionId    = [int]$env:SYSTEM_DEFINITIONID
+            runId           = [int]$env:BUILD_BUILDID
+            retainUntil     = $retainUntil
+            protectPipeline = $false
+          }
+        )
+        Invoke-RestMethod -Method Post -Uri $uri `
+          -Headers @{ Authorization = "Bearer $($env:SYSTEM_ACCESSTOKEN)" } `
+          -ContentType 'application/json' -Body $body
+      displayName: Retain successful run for 7 days
+      env:
+        SYSTEM_ACCESSTOKEN: $(System.AccessToken)
