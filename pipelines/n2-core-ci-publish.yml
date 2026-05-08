@@ -93,7 +93,7 @@ stages:
         ArtifactName: packages
 
     - pwsh: |
-        $retainUntil = (Get-Date).AddDays(7).ToUniversalTime().ToString("o")
+        $retainUntil = (Get-Date).AddDays(30).ToUniversalTime().ToString("o")
         $uri = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)$($env:SYSTEM_TEAMPROJECTID)/_apis/build/retention/leases?api-version=7.1"
         $body = ConvertTo-Json -Compress -InputObject @(
           @{
@@ -107,7 +107,7 @@ stages:
         Invoke-RestMethod -Method Post -Uri $uri `
           -Headers @{ Authorization = "Bearer $($env:SYSTEM_ACCESSTOKEN)" } `
           -ContentType 'application/json' -Body $body
-      displayName: Retain successful run for 7 days
+      displayName: Retain successful run for 30 days
       env:
         SYSTEM_ACCESSTOKEN: $(System.AccessToken)
 
