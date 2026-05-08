@@ -1,0 +1,9 @@
+{
+  "TemplateType": "Ad",
+  "Context": "",
+  "References": {},
+  "DateTime": "2026-05-08T00:00:00+02:00",
+  "FileName": "00001-use-architecture-decision-records",
+  "RecordId": 1,
+  "Title": "Use Architecture Decision Records"
+}

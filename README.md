@@ -3,6 +3,8 @@
 # n2-core
 Basic functionality for any project
 
+This repository depends on a private Azure Artifacts feed. See [docs/private-feed.md](docs/private-feed.md) for setup instructions.
+
 ## Change Log
 
 ### 1.0.0
