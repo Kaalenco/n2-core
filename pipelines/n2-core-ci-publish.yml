@@ -4,13 +4,25 @@
 
 trigger:
   branches:
-    include: [trunk]
+    include:
+    - trunk
   paths:
-    exclude: ['docs/**', '*.md']
+    include:
+    - src/N2.*/**
+    exclude:
+    - docs/**
+    - '*.md'
 
 pr:
   branches:
-    include: [trunk]
+    include:
+    - trunk
+  paths:
+    include:
+    - src/N2.*/**
+    exclude:
+    - docs/**
+    - '*.md'
 
 pool:
   vmImage: 'windows-latest'
