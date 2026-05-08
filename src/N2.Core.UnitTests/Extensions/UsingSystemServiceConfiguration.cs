@@ -92,30 +92,30 @@ public sealed class UsingSystemServiceConfiguration
     [TestMethod]
     public void IsAssignableTo_DerivedType_ReturnsTrue()
     {
-        Assert.IsTrue(ServiceCollectionExtensions.IsAssignableTo(typeof(ArgumentNullException), typeof(Exception)));
+        Assert.IsTrue(SystemServiceConfiguration.IsAssignableTo(typeof(ArgumentNullException), typeof(Exception)));
     }
 
     [TestMethod]
     public void IsAssignableTo_SameType_ReturnsTrue()
     {
-        Assert.IsTrue(ServiceCollectionExtensions.IsAssignableTo(typeof(Exception), typeof(Exception)));
+        Assert.IsTrue(SystemServiceConfiguration.IsAssignableTo(typeof(Exception), typeof(Exception)));
     }
 
     [TestMethod]
     public void IsAssignableTo_UnrelatedType_ReturnsFalse()
     {
-        Assert.IsFalse(ServiceCollectionExtensions.IsAssignableTo(typeof(string), typeof(Exception)));
+        Assert.IsFalse(SystemServiceConfiguration.IsAssignableTo(typeof(string), typeof(Exception)));
     }
 
     [TestMethod]
     public void IsAssignableTo_NullType_ThrowsArgumentNullException()
     {
-        Assert.Throws<ArgumentNullException>(() => ServiceCollectionExtensions.IsAssignableTo(null!, typeof(Exception)));
+        Assert.Throws<ArgumentNullException>(() => SystemServiceConfiguration.IsAssignableTo(null!, typeof(Exception)));
     }
 
     [TestMethod]
     public void IsAssignableTo_NullTargetType_ThrowsArgumentNullException()
     {
-        Assert.Throws<ArgumentNullException>(() => ServiceCollectionExtensions.IsAssignableTo(typeof(Exception), null!));
+        Assert.Throws<ArgumentNullException>(() => SystemServiceConfiguration.IsAssignableTo(typeof(Exception), null!));
     }
 }
