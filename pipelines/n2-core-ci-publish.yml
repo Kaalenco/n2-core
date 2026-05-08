@@ -65,6 +65,8 @@ stages:
           --configuration $(buildConfiguration)
           --collect:"XPlat Code Coverage"
         publishTestResults: true
+      env:
+        ENV__Secret: NotSoSecret
 
     - task: PublishCodeCoverageResults@2
       displayName: Publish code coverage
