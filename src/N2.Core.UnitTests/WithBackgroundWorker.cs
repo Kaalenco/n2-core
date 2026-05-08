@@ -92,10 +92,12 @@ public class WithBackgroundWorker
     public void StopJobHonoursCancellationToken()
     {
         using CancellationTokenSource cts = new();
+        using ManualResetEventSlim jobStarted = new(false);
         bool wasCancelled = false;
 
         using BackgroundWorker sut = new(100, false, cts, async token =>
         {
+            jobStarted.Set();
             try
             {
                 await Task.Delay(5000, token);
@@ -109,8 +111,8 @@ public class WithBackgroundWorker
         // ContinueJob starts the timer without calling StartJob(),
         // which would null the tokenSource and break cancellation.
         sut.ContinueJob();
-        Thread.Sleep(200); // allow timer to fire and job to start
-        sut.StopJob();     // cancels tokenSource and waits for task to complete
+        Assert.IsTrue(jobStarted.Wait(TimeSpan.FromSeconds(5)), "job did not start within 5 seconds");
+        sut.StopJob(); // cancels tokenSource and waits for task to complete
 
         Assert.IsTrue(wasCancelled);
     }
