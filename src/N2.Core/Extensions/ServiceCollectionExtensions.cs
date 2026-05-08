@@ -158,57 +158,35 @@ public static class SystemServiceConfiguration
         Assembly assembly)
     {
         Contract.NotNull(assembly, nameof(assembly));
-        foreach (var type in assembly.GetTypes())
+
+        var candidates = assembly.GetTypes()
+            .Where(t => !t.IsAbstract && !t.IsNested)
+            .SelectMany(t => t.GetInterfaces()
+                .Where(i => i.IsAssignableTo(typeof(T)) && i.Name != nameof(T))
+                .Select(i => (ImplementationType: t, ServiceType: ResolveServiceType(i, t))));
+
+        foreach (var (implementationType, serviceType) in candidates)
         {
-            if (type.IsAbstract || type.IsNested)
+            if (!serviceCollection.Any(s => s.ServiceType == serviceType && s.ImplementationType == implementationType))
             {
-                continue;
-            }
-
-            foreach (var reference in type.GetInterfaces())
-            {
-                if (reference.IsAssignableTo(typeof(T)) && reference.Name != nameof(T))
-                {
-                    if (reference.IsGenericType)
-                    {
-                        // Register generic type
-                        var genericType = reference.GetGenericTypeDefinition();
-                        var genericArguments = type.GetGenericArguments();
-
-                        if (genericArguments.Length == 0)
-                        {
-                            // Register as generic type, if not already registered with the same implementation
-                            if (serviceCollection.Any(s => s.ServiceType == reference && s.ImplementationType == type))
-                            {
-                                continue; // Skip if already registered
-                            }
-                            serviceCollection.AddScoped(reference, type);
-                            continue;
-                        }
-
-                        var constructedType = genericType.MakeGenericType(genericArguments);
-
-                        // check if the constructed type is already registered with the same implementation
-                        if (serviceCollection.Any(s => s.ServiceType == constructedType && s.ImplementationType == type))
-                        {
-                            continue; // Skip if already registered
-                        }
-
-                        serviceCollection.AddScoped(constructedType, type);
-                    }
-                    else
-                    {
-                        // Register non-generic type, if not already registered with the same implementation
-                        if (serviceCollection.Any(s => s.ServiceType == reference && s.ImplementationType == type))
-                        {
-                            continue; // Skip if already registered
-                        }
-                        serviceCollection.AddScoped(reference, type);
-                    }
-                }
+                serviceCollection.AddScoped(serviceType, implementationType);
             }
         }
+
         return serviceCollection;
+    }
+
+    private static Type ResolveServiceType(Type interfaceType, Type implementationType)
+    {
+        if (!interfaceType.IsGenericType)
+            return interfaceType;
+
+        var genericArgs = implementationType.GetGenericArguments();
+        return genericArgs.Length == 0
+            ? interfaceType
+            : interfaceType
+                .GetGenericTypeDefinition()
+                .MakeGenericType(genericArgs);
     }
 
     /// <summary>
