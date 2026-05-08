@@ -55,18 +55,16 @@ public class WithBackgroundWorker
     [TestMethod]
     public void StartJobExecutesJob()
     {
-        bool jobExecuted = false;
+        using ManualResetEventSlim jobDone = new(false);
         using BackgroundWorker sut = new(10000, false, null, _ =>
         {
-            jobExecuted = true;
+            jobDone.Set();
             return Task.CompletedTask;
         });
 
         sut.StartJob();
 
-        // allow the async task.Run to complete
-        Thread.Sleep(200);
-        Assert.IsTrue(jobExecuted);
+        Assert.IsTrue(jobDone.Wait(TimeSpan.FromSeconds(5)));
     }
 
     [TestMethod]
