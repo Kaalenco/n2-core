@@ -103,7 +103,7 @@ stages:
 
 - stage: CodeAnalysis
   displayName: Code analysis
-  dependsOn: []
+  dependsOn: CI
   jobs:
   - job: Analyse
     displayName: Coverage and complexity
