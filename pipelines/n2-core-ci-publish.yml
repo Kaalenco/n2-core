@@ -21,10 +21,6 @@ pool:
 variables:
   buildConfiguration: 'Release'
 
-retention:
-  default:
-    daysToKeep: 1
-
 stages:
 
 - stage: CI
