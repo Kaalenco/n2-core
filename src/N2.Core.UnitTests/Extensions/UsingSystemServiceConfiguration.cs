@@ -92,18 +92,30 @@ public sealed class UsingSystemServiceConfiguration
     [TestMethod]
     public void IsAssignableTo_DerivedType_ReturnsTrue()
     {
-        Assert.IsTrue(typeof(ArgumentNullException).IsAssignableTo(typeof(Exception)));
+        Assert.IsTrue(ServiceCollectionExtensions.IsAssignableTo(typeof(ArgumentNullException), typeof(Exception)));
     }
 
     [TestMethod]
     public void IsAssignableTo_SameType_ReturnsTrue()
     {
-        Assert.IsTrue(typeof(Exception).IsAssignableTo(typeof(Exception)));
+        Assert.IsTrue(ServiceCollectionExtensions.IsAssignableTo(typeof(Exception), typeof(Exception)));
     }
 
     [TestMethod]
     public void IsAssignableTo_UnrelatedType_ReturnsFalse()
     {
-        Assert.IsFalse(typeof(string).IsAssignableTo(typeof(Exception)));
+        Assert.IsFalse(ServiceCollectionExtensions.IsAssignableTo(typeof(string), typeof(Exception)));
+    }
+
+    [TestMethod]
+    public void IsAssignableTo_NullType_ThrowsArgumentNullException()
+    {
+        Assert.Throws<ArgumentNullException>(() => ServiceCollectionExtensions.IsAssignableTo(null!, typeof(Exception)));
+    }
+
+    [TestMethod]
+    public void IsAssignableTo_NullTargetType_ThrowsArgumentNullException()
+    {
+        Assert.Throws<ArgumentNullException>(() => ServiceCollectionExtensions.IsAssignableTo(typeof(Exception), null!));
     }
 }
