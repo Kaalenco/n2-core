@@ -64,14 +64,13 @@ stages:
           --no-build
           --configuration $(buildConfiguration)
           --collect:"XPlat Code Coverage"
-          --results-directory $(Agent.TempDirectory)/TestResults
         publishTestResults: true
 
     - task: PublishCodeCoverageResults@2
       displayName: Publish code coverage
       condition: always()
       inputs:
-        summaryFileLocation: '$(Agent.TempDirectory)/TestResults/**/coverage.cobertura.xml'
+        summaryFileLocation: '$(Agent.TempDirectory)/**/coverage.cobertura.xml'
 
     - task: DotNetCoreCLI@2
       displayName: Pack
