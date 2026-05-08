@@ -1,7 +1,7 @@
 namespace N2.Core.UnitTests;
 
 [TestClass]
-public class NCoreSemaphoreTest
+public class WithSemaphore
 {
     [TestMethod]
     public void InitializeNCoreSemaphore()

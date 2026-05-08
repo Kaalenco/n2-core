@@ -3,7 +3,7 @@ using N2.Core.Exceptions;
 namespace N2.Core.UnitTests;
 
 [TestClass]
-public sealed class ContractTests
+public sealed class UsingContract
 {
     [TestMethod]
     [DataRow("ValidName")]

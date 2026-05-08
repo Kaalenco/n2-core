@@ -1,8 +1,6 @@
-
-using N2.Core;
 using N2.Core.Identity;
 
-namespace Kaalenco.Common.SystemAbstractions;
+namespace N2.Core.SystemAbstractions;
 
 public class AnonymousUserProfile : IUserContext
 {

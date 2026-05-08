@@ -1,12 +1,12 @@
 using N2.Core.Identity;
 
-namespace OAuthServices
+namespace N2.Core.UnitTests.Identity
 {
     /// <summary>
     /// Claim extensions tests
     /// </summary>
     [TestClass]
-    public class ClaimServiceExtensionsTests
+    public class UsingClaimServiceExtensions
     {
         /// <summary>
         /// Validate that the claims service extensions translates claim type enum.

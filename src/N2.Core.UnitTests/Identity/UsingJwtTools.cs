@@ -2,13 +2,13 @@ using System.Security.Claims;
 
 using N2.Core.Identity;
 
-namespace OAuthServices;
+namespace N2.Core.UnitTests.Identity;
 /// <summary>
 /// The jwt tools tests.
 /// </summary>
 
 [TestClass]
-public class JwtToolsTests
+public class UsingJwtTools
 {
     /// <summary>
     /// Jwt tools can generate random keys.
@@ -106,7 +106,7 @@ public class JwtToolsTests
 
         Console.WriteLine(result);
 
-        ClaimsPrincipal principal = JwtTools.GetPrincipalFromJwt(result, securityKey, issuer: "http://JwtToolsTests", audience: "http://localhost");
+        ClaimsPrincipal principal = JwtTools.GetPrincipalFromJwt(result, securityKey, issuer: "http://UsingJwtTools", audience: "http://localhost");
         Assert.IsNotNull(principal);
         Assert.IsTrue(principal.IsInRole("testuser"));
     }
@@ -128,7 +128,7 @@ public class JwtToolsTests
         string token = CreateToken(securityKey);
 
         Assert.Throws<WebTokenException>(() =>
-            JwtTools.GetPrincipalFromJwt(token, securityKey, issuer: "http://JwtToolsTests", audience: "http://wrong-audience"));
+            JwtTools.GetPrincipalFromJwt(token, securityKey, issuer: "http://UsingJwtTools", audience: "http://wrong-audience"));
     }
 
     [TestMethod]
@@ -150,6 +150,6 @@ public class JwtToolsTests
             new(ClaimType.UserName.ClaimName(), "TestUser"),
             new(ClaimType.Email.ClaimName(), "user@mycompany.local")
 ];
-        return JwtTools.ConvertToJwt(claims, "http://localhost", "http://JwtToolsTests", securityKey, DateTime.UtcNow.AddMinutes(5));
+        return JwtTools.ConvertToJwt(claims, "http://localhost", "http://UsingJwtTools", securityKey, DateTime.UtcNow.AddMinutes(5));
     }
 }

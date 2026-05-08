@@ -4,7 +4,7 @@
     <TargetFrameworks>net8.0;NET10.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <NoWarn>CA1515;CS1591;CA2007;CA1812;</NoWarn>
+    <NoWarn>CA1515;CS1591;CA1307;CA2007;CA1812;MSTEST0032</NoWarn>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
     <UserSecretsId>aspnet-BlazorAppOne-0c368d89-5cb3-4451-9c68-b79e69920a09</UserSecretsId>

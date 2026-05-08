@@ -1,6 +1,4 @@
-﻿using N2.Core.SystemAbstractions;
-
-namespace Kaalenco.Common.SystemAbstractions;
+﻿namespace N2.Core.SystemAbstractions;
 
 public class TimeSystem : ITimeSystem
 {

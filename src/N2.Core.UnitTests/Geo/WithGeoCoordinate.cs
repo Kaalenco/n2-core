@@ -2,7 +2,7 @@
 
 namespace N2.Core.UnitTests.Geo;
 [TestClass]
-public class GeoCoordinateTests
+public class WithGeoCoordinate
 {
     private GeoCoordinate UnitUnderTest = new();
 

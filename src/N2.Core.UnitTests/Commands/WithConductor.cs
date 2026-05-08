@@ -16,7 +16,7 @@ namespace N2.Core.UnitTests.Commands;
 /// containers to find handlers for messages.
 /// </summary>
 [TestClass]
-public class ConductorTests
+public class WithConductor
 {
     private readonly IServiceCollection Sc = new ServiceCollection();
 #pragma warning disable CS8618 
@@ -27,7 +27,7 @@ public class ConductorTests
     public void TestInitialize()
     {
         Sc.AddScoped<IConductor, Conductor>();
-        Sc.AddCommandHandlers(typeof(ConductorTests));
+        Sc.AddCommandHandlers(typeof(WithConductor));
         Sc.AddLogging(opt => opt.AddConsole());
         Sc.AddMemoryCache();
 

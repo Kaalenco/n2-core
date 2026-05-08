@@ -3,7 +3,7 @@
 namespace N2.Core.UnitTests.Extensions;
 
 [TestClass]
-public class GenericClassExtensionTests
+public class UsingGenericClassExtensions
 {
     [TestMethod]
     public void PropertyMapperWorksWithSameType()

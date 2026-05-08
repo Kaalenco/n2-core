@@ -5,7 +5,7 @@ using N2.Core.Extensions;
 namespace N2.Core.UnitTests.Extensions;
 
 [TestClass]
-public class StringExtensionTests
+public class UsingStringExtensions
 {
     // -------------------------------------------------------------------------
     // ConvertToGuid
@@ -117,7 +117,7 @@ public class StringExtensionTests
     [DataRow("FIRST")]
     public void IsEnumReturnsTrueWhenValueMatchesEnum(string value)
     {
-        bool result = value.IsEnum(StringExtensionTestsControlSet.First);
+        bool result = value.IsEnum(UsingStringExtensionsControlSet.First);
         Assert.IsTrue(result);
     }
 
@@ -129,7 +129,7 @@ public class StringExtensionTests
     [DataRow(null)]
     public void IsEnumReturnsFalseWhenValueDoesNotMatchEnum(string? value)
     {
-        bool result = value!.IsEnum(StringExtensionTestsControlSet.First);
+        bool result = value!.IsEnum(UsingStringExtensionsControlSet.First);
         Assert.IsFalse(result);
     }
 
@@ -330,7 +330,7 @@ public class StringExtensionTests
     }
 }
 
-public enum StringExtensionTestsControlSet
+public enum UsingStringExtensionsControlSet
 {
     None,
     First,

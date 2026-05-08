@@ -123,15 +123,14 @@ public class BackgroundWorker : IBackgroundWorker, IDisposable
         restartTimer.AutoReset = false;
         restartTimer.Stop();
         tokenSource?.Cancel();
-        if (workerStatus == null)
+        if (workerStatus != null)
         {
-            return;
+            workerStatus = workerStatus with
+            {
+                CurrentAction = "Stopping"
+            };
         }
 
-        workerStatus = workerStatus with
-        {
-            CurrentAction = "Stopping"
-        };
         currentTask?.Wait();
     }
 

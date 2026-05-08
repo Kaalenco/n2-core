@@ -5,17 +5,17 @@ using Moq;
 namespace N2.Core.UnitTests;
 
 [TestClass]
-public class SettingserviceTests
+public class WithSettingsService
 {
     private readonly Mock<IDirectoryInfo> directoryInfoMock = new();
     private readonly SettingsService settings;
-    public SettingserviceTests()
+    public WithSettingsService()
     {
         FileSystem fileSystem = new();
         string currentFolder = Directory.GetCurrentDirectory();
         IDirectoryInfo directory = fileSystem.DirectoryInfo.New(currentFolder);
         settings = new SettingsService(directory, null) { SettingsFileName = "testsettings.json" };
-        settings.Reload<SettingserviceTests>();
+        settings.Reload<WithSettingsService>();
     }
 
     [TestMethod]
