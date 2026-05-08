@@ -87,6 +87,6 @@ stages:
         Invoke-RestMethod -Method Post -Uri $uri `
           -Headers @{ Authorization = "Bearer $($env:SYSTEM_ACCESSTOKEN)" } `
           -ContentType 'application/json' -Body $body
-      displayName: Retain successful run for 10 days
+      displayName: Retain successful run for 3 days
       env:
         SYSTEM_ACCESSTOKEN: $(System.AccessToken)
