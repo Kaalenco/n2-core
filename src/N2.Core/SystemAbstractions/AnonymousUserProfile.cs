@@ -16,10 +16,11 @@ public class AnonymousUserProfile : IUserContext
     public int PrimaryPartitionKey => 0;
 
     public string Description => string.Empty;
-    public IEnumerable<UserAlert> Alerts { get; } = [];
-    public bool IsAuthenticated { get; }
-    public Guid CurrentTenantId { get; }
-    public string CurrentTenantName { get => string.Empty; }
+    public IEnumerable<UserAlert> Alerts => [];
+    public bool IsAuthenticated => false;
+    public Guid CurrentTenantId => Guid.Empty;
+    public string CurrentTenantName => string.Empty;
+    public IEnumerable<(Guid TenantId, string TenantName, IReadOnlyList<string> Roles)> TenantMemberships => [];
 
     public bool IsInRole(string role) => false;
     public bool HasPolicy(string policy) => false;

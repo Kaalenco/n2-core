@@ -29,11 +29,11 @@ public class InMemoryChangeService : INotifyChangeService
         _logger.ServiceInitialized();
     }
 
-    public void AddSubscription(INotifyChangeListener listener)
+    public bool AddSubscription(INotifyChangeListener listener)
     {
         if (listener == null)
         {
-            return;
+            return false;
         }
 
         var typeName = listener.GetType().FullName ?? "UnknownType";
@@ -45,24 +45,28 @@ public class InMemoryChangeService : INotifyChangeService
                 _listeners = [.. _listeners, listener];
             }
             _logger.SubscriptionInitialized(typeName);
+            return true;
         }
         catch (Exception ex)
         {
             _logger.SubscriptionFailed(ex, typeName);
+            return false;
         }
 #pragma warning restore CA1031 // Do not catch general exception types
     }
 
-    public void ItemModified<T>(TrackingId trackingId, T item) where T : IItemChanged
+    public int ItemModified<T>(TrackingId trackingId, T item) where T : IItemChanged
     {
         var typeName = typeof(T).FullName ?? "UnknownType";
         var snapshot = _listeners;
+        var count = 0;
         foreach (var listener in snapshot)
         {
 #pragma warning disable CA1031 // Do not catch general exception types
             try
             {
                 listener.OnItemModified(item);
+                count++;
             }
             catch (Exception ex)
             {
@@ -70,16 +74,20 @@ public class InMemoryChangeService : INotifyChangeService
             }
 #pragma warning restore CA1031 // Do not catch general exception types
         }
+        return count;
     }
 
-    public void RemoveSubscription(INotifyChangeListener listener)
+    public bool RemoveSubscription(INotifyChangeListener listener)
     {
-        if (listener == null) { return; }
+        if (listener == null) { 
+            return false; 
+        }
         lock (_writeLock)
         {
             var newList = _listeners.ToList();
-            newList.Remove(listener);
+            var result = newList.Remove(listener);
             _listeners = [.. newList];
+            return result;
         }
     }
 

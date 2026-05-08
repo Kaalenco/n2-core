@@ -27,10 +27,11 @@ internal sealed class TestChangeListener : INotifyChangeListener
 	public List<object> ReceivedItems { get; } = new();
 	public int NotificationCount { get; private set; }
 
-	public void OnItemModified(IItemChanged item)
+	public bool OnItemModified(IItemChanged item)
 	{
 		ReceivedItems.Add(item);
 		NotificationCount++;
+		return true;
 	}
 }
 
@@ -41,7 +42,7 @@ internal sealed class FaultyChangeListener : INotifyChangeListener
 {
 	public bool WasCalled { get; private set; }
 
-	public void OnItemModified(IItemChanged item)
+	public bool OnItemModified(IItemChanged item)
 	{
 		WasCalled = true;
 		throw new InvalidOperationException("Listener failed to process item");

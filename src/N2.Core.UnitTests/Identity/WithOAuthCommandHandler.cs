@@ -105,7 +105,7 @@ public class WithOAuthCommandHandler
         _identityManager.Setup(m => m.GetClaims(userSid, "http://localhost", "api"))
             .ReturnsAsync([new Claim(ClaimTypes.Name, "user")]);
         _identityManager.Setup(m => m.RegisterRefreshToken(userSid, "http://localhost", "api", It.IsAny<Guid>(), It.IsAny<DateTime>()))
-            .Returns(Task.CompletedTask);
+            .Returns(Task.FromResult((ICommandResponse)StringResponse.Accept("")));
 
         OAuthCommandHandler sut = CreateSut();
         TokenResponse result = await sut.HandleRequestAsync(request);
@@ -161,7 +161,7 @@ public class WithOAuthCommandHandler
         _identityManager.Setup(m => m.GetClaims(userSid, "http://localhost", "api"))
             .ReturnsAsync([new Claim(ClaimTypes.Name, "user")]);
         _identityManager.Setup(m => m.RegisterRefreshToken(userSid, "http://localhost", "api", It.IsAny<Guid>(), It.IsAny<DateTime>()))
-            .Returns(Task.CompletedTask);
+            .Returns(Task.FromResult((ICommandResponse)StringResponse.Accept("")));
 
         OAuthCommandHandler sut = CreateSut();
         TokenResponse result = await sut.HandleRequestAsync(request);
@@ -179,7 +179,7 @@ public class WithOAuthCommandHandler
             Value = new Token { GrantType = GrantType.Logoff, RefreshToken = refreshToken.ToString(), Scope = "api" }
         };
 
-        _identityManager.Setup(m => m.LogoffUser(refreshToken, "api")).Returns(Task.CompletedTask);
+        _identityManager.Setup(m => m.LogoffUser(refreshToken, "api")).Returns(Task.FromResult((ICommandResponse)StringResponse.NoContent("")));
 
         OAuthCommandHandler sut = CreateSut();
         TokenResponse result = await sut.HandleRequestAsync(request);
@@ -222,7 +222,7 @@ public class WithOAuthCommandHandler
         _identityManager.Setup(m => m.GetClaims(userSid, "http://localhost", "api"))
             .ReturnsAsync([new Claim(ClaimTypes.Name, "user")]);
         _identityManager.Setup(m => m.RegisterRefreshToken(userSid, "http://localhost", "api", It.IsAny<Guid>(), It.IsAny<DateTime>()))
-            .Returns(Task.CompletedTask);
+            .Returns(Task.FromResult((ICommandResponse)StringResponse.Accept("")));
 
         OAuthCommandHandler sut = CreateSut();
         TokenResponse result = await sut.HandleRequestAsync(request);

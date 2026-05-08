@@ -184,13 +184,14 @@ public class OAuthCommandHandler : BaseCommandHandler<TokenRequest, TokenRespons
             throw new UnauthorizedException("No Credentials");
         }
 
-        string secret = await _identityManager.GetUserSecret(token.ClientId!, token.Scope!);
-        if (string.IsNullOrEmpty(secret))
+        var secret = await _identityManager.GetUserSecret(token.ClientId!, token.Scope!);
+        var secretValue = secret.Value;
+        if (string.IsNullOrEmpty(secretValue))
         {
             throw new UnauthorizedException("No Access");
         }
 
-        if (JwtTools.ValidateTOTP(DateTime.UtcNow, secret, token.ClientSecret!, (int)_config.ReplayWindowInSeconds))
+        if (JwtTools.ValidateTOTP(DateTime.UtcNow, token.ClientSecret!, secretValue!,  (int)_config.ReplayWindowInSeconds))
         {
             return await _identityManager.LogonUserWithSecret(token.ClientId!, token.ClientSecret!);
         }
