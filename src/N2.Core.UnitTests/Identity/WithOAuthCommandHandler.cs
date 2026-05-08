@@ -22,6 +22,7 @@ public class WithOAuthCommandHandler
 
     // 64-byte base64-encoded key, same format as JwtToolsTests
     private const string TestSecret = "QDebDB8kUuybqB5bgV6YI8R5bmM+u2AqhpfyGKCSdXtTdlIvzB8uhUEv2+wx4qZ+18Qx/dtu+WtXlNpd9yFkHQ==";
+    private const string TotpSharedSecret = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
 
     [TestInitialize]
     public void TestInitialize()
@@ -223,6 +224,107 @@ public class WithOAuthCommandHandler
             .ReturnsAsync([new Claim(ClaimTypes.Name, "user")]);
         _identityManager.Setup(m => m.RegisterRefreshToken(userSid, "http://localhost", "api", It.IsAny<Guid>(), It.IsAny<DateTime>()))
             .Returns(Task.FromResult((ICommandResponse)StringResponse.Accept("")));
+
+        OAuthCommandHandler sut = CreateSut();
+        TokenResponse result = await sut.HandleRequestAsync(request);
+
+        Assert.AreEqual(ResponseStatus.Success, result.Status);
+        Assert.IsNotNull(result.Value?.AccessToken);
+    }
+
+    [TestMethod]
+    public async Task HandleClientCredentials_MissingClientId_ThrowsUnauthorizedException()
+    {
+        TokenRequest request = new()
+        {
+            Audience = "http://localhost",
+            Value = new Token { GrantType = GrantType.ClientCredentials, ClientId = null, Scope = "api", ClientSecret = "secret" }
+        };
+
+        OAuthCommandHandler sut = CreateSut();
+        await Assert.ThrowsAsync<UnauthorizedException>(() => sut.HandleRequestAsync(request));
+    }
+
+    [TestMethod]
+    public async Task HandleClientCredentials_MissingScope_ThrowsUnauthorizedException()
+    {
+        TokenRequest request = new()
+        {
+            Audience = "http://localhost",
+            Value = new Token { GrantType = GrantType.ClientCredentials, ClientId = "client1", Scope = null, ClientSecret = "secret" }
+        };
+
+        OAuthCommandHandler sut = CreateSut();
+        await Assert.ThrowsAsync<UnauthorizedException>(() => sut.HandleRequestAsync(request));
+    }
+
+    [TestMethod]
+    public async Task HandleClientCredentials_MissingClientSecret_ThrowsUnauthorizedException()
+    {
+        TokenRequest request = new()
+        {
+            Audience = "http://localhost",
+            Value = new Token { GrantType = GrantType.ClientCredentials, ClientId = "client1", Scope = "api", ClientSecret = null }
+        };
+
+        OAuthCommandHandler sut = CreateSut();
+        await Assert.ThrowsAsync<UnauthorizedException>(() => sut.HandleRequestAsync(request));
+    }
+
+    [TestMethod]
+    public async Task HandleClientCredentials_EmptyStoredSecret_ThrowsUnauthorizedException()
+    {
+        _identityManager
+            .Setup(m => m.GetUserSecret("client1", "api"))
+            .ReturnsAsync(StringResponse.Accept(""));
+
+        TokenRequest request = new()
+        {
+            Audience = "http://localhost",
+            Value = new Token { GrantType = GrantType.ClientCredentials, ClientId = "client1", Scope = "api", ClientSecret = "placeholder" }
+        };
+
+        OAuthCommandHandler sut = CreateSut();
+        await Assert.ThrowsAsync<UnauthorizedException>(() => sut.HandleRequestAsync(request));
+    }
+
+    [TestMethod]
+    public async Task HandleClientCredentials_InvalidTotp_ReturnsUnauthorized()
+    {
+        string wrongHash = JwtTools.TOTP(DateTime.UtcNow, TestSecret, OAuthConfig.DefaultReplayWindow);
+        _identityManager
+            .Setup(m => m.GetUserSecret("client1", "api"))
+            .ReturnsAsync(StringResponse.Accept(TotpSharedSecret));
+
+        TokenRequest request = new()
+        {
+            Audience = "http://localhost",
+            Value = new Token { GrantType = GrantType.ClientCredentials, ClientId = "client1", Scope = "api", ClientSecret = wrongHash }
+        };
+
+        OAuthCommandHandler sut = CreateSut();
+        TokenResponse result = await sut.HandleRequestAsync(request);
+
+        Assert.AreEqual(ResponseStatus.Unauthorized, result.Status);
+    }
+
+    [TestMethod]
+    public async Task HandleClientCredentials_ValidTotp_ReturnsToken()
+    {
+        string validHash = JwtTools.TOTP(DateTime.UtcNow, TotpSharedSecret, OAuthConfig.DefaultReplayWindow);
+        Guid userSid = Guid.NewGuid();
+        _identityManager.Setup(m => m.GetUserSecret("client1", "api")).ReturnsAsync(StringResponse.Accept(TotpSharedSecret));
+        _identityManager.Setup(m => m.LogonUserWithSecret("client1", validHash)).ReturnsAsync(userSid);
+        _identityManager.Setup(m => m.GetClaims(userSid, "http://localhost", "api"))
+            .ReturnsAsync([new Claim(ClaimTypes.Name, "client1")]);
+        _identityManager.Setup(m => m.RegisterRefreshToken(userSid, "http://localhost", "api", It.IsAny<Guid>(), It.IsAny<DateTime>()))
+            .Returns(Task.FromResult((ICommandResponse)StringResponse.Accept("")));
+
+        TokenRequest request = new()
+        {
+            Audience = "http://localhost",
+            Value = new Token { GrantType = GrantType.ClientCredentials, ClientId = "client1", Scope = "api", ClientSecret = validHash }
+        };
 
         OAuthCommandHandler sut = CreateSut();
         TokenResponse result = await sut.HandleRequestAsync(request);
