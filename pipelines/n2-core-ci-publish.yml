@@ -140,6 +140,7 @@ stages:
           --collect:"XPlat Code Coverage"
       env:
         Logging__LogLevel__Default: Error
+        ENV__Secret__Value: NotSoSecret
 
     - script: dotnet tool install --global dotnet-reportgenerator-globaltool
       displayName: Install ReportGenerator
