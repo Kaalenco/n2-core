@@ -93,14 +93,13 @@ stages:
         ArtifactName: packages
 
     - pwsh: |
-        $retainUntil = (Get-Date).AddDays(30).ToUniversalTime().ToString("o")
         $uri = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)$($env:SYSTEM_TEAMPROJECTID)/_apis/build/retention/leases?api-version=7.1"
         $body = ConvertTo-Json -Compress -InputObject @(
           @{
             ownerId         = "Pipeline:$($env:SYSTEM_DEFINITIONID)"
             definitionId    = [int]$env:SYSTEM_DEFINITIONID
             runId           = [int]$env:BUILD_BUILDID
-            retainUntil     = $retainUntil
+            daysValid       = 30
             protectPipeline = $false
           }
         )
@@ -246,14 +245,13 @@ stages:
         FEED_URL: https://pkgs.dev.azure.com/gjkaal/3b3decf8-eba1-45d0-b47a-d9c1ce84f739/_packaging/vault-packages/nuget/v3/index.json
 
     - pwsh: |
-        $retainUntil = (Get-Date).AddDays(365).ToUniversalTime().ToString("o")
         $uri = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)$($env:SYSTEM_TEAMPROJECTID)/_apis/build/retention/leases?api-version=7.1"
         $body = ConvertTo-Json -Compress -InputObject @(
           @{
             ownerId         = "Pipeline:$($env:SYSTEM_DEFINITIONID):published"
             definitionId    = [int]$env:SYSTEM_DEFINITIONID
             runId           = [int]$env:BUILD_BUILDID
-            retainUntil     = $retainUntil
+            daysValid       = 365
             protectPipeline = $false
           }
         )

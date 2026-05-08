@@ -74,14 +74,13 @@ stages:
         summaryFileLocation: '$(Agent.TempDirectory)/**/coverage.cobertura.xml'
 
     - pwsh: |
-        $retainUntil = (Get-Date).AddDays(10).ToUniversalTime().ToString("o")
         $uri = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)$($env:SYSTEM_TEAMPROJECTID)/_apis/build/retention/leases?api-version=7.1"
         $body = ConvertTo-Json -Compress -InputObject @(
           @{
             ownerId         = "Pipeline:$($env:SYSTEM_DEFINITIONID)"
             definitionId    = [int]$env:SYSTEM_DEFINITIONID
             runId           = [int]$env:BUILD_BUILDID
-            retainUntil     = $retainUntil
+            daysValid       = 3
             protectPipeline = $false
           }
         )
