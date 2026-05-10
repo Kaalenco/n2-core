@@ -1,68 +1,61 @@
 [![.NET Build and test](https://github.com/Kaalenco/n2-core/actions/workflows/dotnet.yml/badge.svg)](https://github.com/Kaalenco/n2-core/actions/workflows/dotnet.yml)
 
-# n2-core
-Basic functionality for any project
+# N2.Core
+
+N2.Core is a multi-target library (`netstandard2.0`, `netstandard2.1`, `net8.0`, `net10.0`) providing reusable infrastructure for ASP.NET Core applications. It covers authentication, command dispatching, HTTP abstractions, geo types, telemetry, and a set of general-purpose extensions — all designed to be composed without taking on heavy framework dependencies.
 
 This repository depends on a private Azure Artifacts feed. See [docs/private-feed.md](docs/private-feed.md) for setup instructions.
 
-## Change Log
+## Functional areas
 
-### 1.0.0
-- Initial release of the N2.Core library.
+### Commands (`N2.Core.Commands`)
 
-### 1.0.2
+The command dispatcher (`Conductor`) routes any `IRequest` implementation to its matching `IHandle<TRequest, TResponse>` handler, resolved through the DI container. A thread-pool `Semaphore` limits concurrency so a burst of commands cannot exhaust available threads. Consumer code implements `IHandle`, registers handlers via `services.AddCommandHandlers(...)`, and dispatches through `IConductor` — the coordinator handles the rest. `BaseCommandHandler` provides a base with structured error handling and async execution built in.
 
-- Using updated `N2.Core.Abstraction` package
-- Improved caching mechanism using `IMemoryCache`.
-- Updated `LocalizedTextService` to use `ITextService` for text retrieval.
-- Adding OAuth authorization support.
-- Adding basic command handler
-- Update to .NET 9.0
+### Identity (`N2.Core.Identity`)
 
-### 1.0.3
+`JwtTools` generates and validates JWT tokens and supports TOTP-based one-time passwords, with configurable issuer/audience validation and a constant-time hash comparison to prevent timing attacks. `OAuthCommandHandler` covers the OAuth credential flow, including hardened Basic auth parsing. `ClaimServiceExtensions` provides helpers for reading typed claim values from the current user context.
 
-- Adding entity framework support
-- Adding ChangeLog as a sample dataset for tracking changes in the application.
-- Core functionality for handling change logs, change tracking, and change history.
-- Adding CoreDesignComponent for easy implementing view to entity CRUD operations.
-- Update package references to latest versions.
+### Http (`N2.Core.Http`)
 
-### 1.3.0
+`HttpResult` is a uniform response wrapper used across all API endpoints. `HttpContextProxy`, `HttpRequestProxy`, and `HttpResponseProxy` wrap the ASP.NET Core HTTP primitives behind testable interfaces, allowing service and handler code to be tested without a running web host.
 
-- Added `net8.0` and `net9.0` as target frameworks alongside `netstandard2.0` / `netstandard2.1`.
-- Entity framework support moved to the separate `N2.Core.Entity` package.
-- Added `Conductor` — command dispatcher routing `IRequest` to `IHandle<TRequest, TResponse>` handlers via DI.
-- Added `Semaphore` for thread-pool slot management used by the conductor.
-- Added `BaseCommandHandler` with async request execution and structured error handling.
-- Added `LoggerExtensions` with `LoggerMessage.Define`-based structured logging helpers.
-- Extended `StringExtensions`: `UppercaseFirst`, `Truncate`, `GetStableHashCode`, `SanitizeFileName`, `ReplaceChars`, `FindHtmlPart`.
-- Added `Contract` class for unconditional argument validation.
-- Added localized resource files (`Messages.resx`, `Messages.nl.resx`).
-- Added unit tests for `Contract`, `Conductor`, `Semaphore`, `HttpResult`.
+### Entity (`N2.Core.Entity`)
 
-### 1.5.2
+`EntityConnectionService` resolves Entity Framework connection strings from the application configuration, centralising connection-string management so individual repositories do not need to read configuration directly.
 
-- Added `net10.0` as a target framework.
-- All `Microsoft.Extensions.*` packages upgraded to 10.0.5.
-- `System.IdentityModel.Tokens.Jwt` upgraded to 8.17.0.
-- `RandomStringGenerator` uses `RandomNumberGenerator.GetInt32` on `net9.0`+ for cryptographically secure output.
-- `N2.Core.Abstractions` dependency updated to 1.5.2.
+### Extensions (`N2.Core.Extensions`)
 
-### 1.6.0
+`ServiceCollectionExtensions` provides DI registration helpers — in particular `AddCommandHandlers`, which scans an assembly for `IHandle` implementations and registers them. Beyond DI, this module contains extension methods on `string` (hashing, truncation, file-name sanitisation, HTML extraction), `int`, arrays, `ILogger` (structured logging via `LoggerMessage.Define`), and `HttpClient`.
 
-- Fixed threading issues in `BaseCommandHandler`, `Conductor`, and `Semaphore`.
-- Fixed race condition in `DefaultValueService`.
-- Stability improvements in `OAuthCommandHandler` under concurrent load.
+### Geo (`N2.Core.Geo`)
 
-### 1.6.1
+`GeoCoordinate` and `GeoPosition` are lightweight value types for geographic coordinates. They carry no external dependencies and are designed to be embedded in domain models and DTOs without pulling in a mapping library.
 
-- **Security:** `Contract.NotNull` is now unconditional — guards no longer stripped in Release builds.
-- **Security:** `BackgroundWorker.IsActivated` changed from `static` to instance field — multiple workers no longer share activation state.
-- **Security:** JWT validation in `GetPrincipalFromJwt` and `GetPrincipal` now accepts optional `issuer` and `audience` parameters; when supplied, the token is validated against both values.
-- **Security:** Basic auth credential parsing in `OAuthCommandHandler` hardened — uses `IndexOf(':')` with explicit guards; passwords containing colons are now handled correctly.
-- **Security:** TOTP time window parameter renamed from minutes to seconds across `ValidateTOTP` and `TOTP`; window is now driven by `OAuthConfig.ReplayWindowInSeconds` (default 30 s) rather than a hard-coded value.
-- **Security:** `CheckHash` replaced with a constant-time XOR-accumulation comparison; the 500 ms timing floor is now applied once per `ValidateTOTP` call instead of per hash check, eliminating the prior infinite-loop bug on a successful match.
-- **Security:** `OAuthConfig.Secret` and `OAuthConfig.Issuer` are now immutable after construction (`private set`).
-- Added XML documentation to `Validator`, `OAuthConfig`, and `JwtTools`.
-- Added `ReplayWindowInSeconds` property to `OAuthConfig` (configurable via `OAuthConfig:ReplayWindowInSeconds`).
-- Added unit tests: `WithValidator`, `WithBackgroundWorker`, `WithAzureFunctionClient`, `UsingWaitForObject`, `WithOAuthCommandHandler`; expanded `JwtToolsTests` and `StringExtensionTests`.
+### Telemetry (`N2.Core.Telemetry`)
+
+`ActivityLog` records structured activity entries. `ActivityLoggerFactory` creates loggers that write to the activity log, allowing discrete application events (user actions, background job completions) to be captured separately from diagnostic logging.
+
+### System abstractions (`N2.Core.SystemAbstractions`)
+
+`ITimeSystem` and its default implementation `TimeSystem` abstract `DateTime.UtcNow` so time-dependent logic can be unit-tested without real clock dependencies. `AnonymousUserProfile` is a sentinel value representing an unauthenticated user, used where a non-null user context is always expected.
+
+### Helpers (`N2.Core.Helpers`)
+
+`FileHelpers` provides file-system utilities. `RandomNames` generates human-readable random identifiers useful for test data, temporary resource names, and display purposes.
+
+### Core services
+
+`SettingsService` loads and exposes typed configuration sections from `IConfiguration`. `LocalizedTextService` retrieves localised strings via `ITextService`. `Contract` provides unconditional guard clauses (always active in Release builds). `Validation` exposes composable validation rules. `Semaphore` enforces a concurrency limit on the thread pool. `BackgroundWorker` runs fire-and-forget tasks with controlled activation. `AzureFunctionClient` is an HTTP client wrapper for invoking Azure Functions from within the application.
+
+## Project documentation
+
+| Document | Description |
+|----------|-------------|
+| [src/DEVELOPER-GUIDE.md](src/DEVELOPER-GUIDE.md) | Developer guide — build commands, CI/CD pipelines, and maintenance notes. |
+| [src/WARNINGS.md](src/WARNINGS.md) | Suppressed analyser warnings — lists every `<NoWarn>` entry with severity rating and guidance. |
+| [CHANGELOG.md](CHANGELOG.md) | Full version history. |
+
+## Change log
+
+See [CHANGELOG.md](CHANGELOG.md) for the full history. Current version: **1.6.3**.

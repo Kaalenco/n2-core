@@ -1,10 +1,11 @@
 # Suppressed Warnings
 
 This document explains each warning suppressed via `<NoWarn>` in
-`N2.Core.Abstractions/N2.Core.Abstractions.csproj`.
+`N2.Core/N2.Core.csproj`.
 
-Because this library contains **only interfaces, abstract base types, and simple model classes**,
-several analyser rules that apply to concrete implementations are intentionally silenced.
+Several analyser rules that apply to concrete implementations or to specific framework versions
+are intentionally silenced because this library targets `netstandard2.0` through `net10.0` and
+exposes a stable public API surface across all of them.
 
 | Warning | Analyser | Name | Reason for suppression | Severity | Safe to ignore when |
 |---------|----------|------|------------------------|----------|---------------------|
@@ -19,6 +20,7 @@ several analyser rules that apply to concrete implementations are intentionally 
 | `CA1859` | Roslyn / CA | Use concrete types when possible for improved performance | Return types are intentionally kept as interfaces/abstractions to honour the library's contract. | Low | The return type is an interface by design (abstraction library). The marginal virtual-dispatch cost is acceptable; consumers may substitute any implementation. |
 | `CA2007` | Roslyn / CA | Do not directly await a Task without ConfigureAwait | Consumers decide synchronisation-context behaviour; mandating it in abstractions is inappropriate. | Medium | The code runs in a context where there is no `SynchronizationContext` (ASP.NET Core, console, worker service). **Do not suppress** in UI-framework code (WPF, WinForms, MAUI) where deadlocks are possible. |
 | `CS1591` | C# compiler | Missing XML comment for publicly visible type or member | Documentation is being added incrementally. | Low | The member is internal implementation detail that does not appear in the published NuGet docs. Public API members should be documented before release. |
+| `IDE0057` | Roslyn / IDE | Use range operator | The `..` range operator is not available in `netstandard2.0` or `netstandard2.1`. | Low | The codebase targets frameworks that pre-date the range operator. Remove this suppression once `netstandard` targets are dropped. |
 | `IDE0060` | Roslyn / IDE | Remove unused parameter | Interface and abstract method signatures must match the defined contract regardless of whether an individual implementation uses the parameter. | Designer choice | The parameter exists because the interface contract requires it. Safe to suppress on explicit interface implementations and overrides; do not suppress on standalone methods. |
 | `IDE0290` | Roslyn / IDE | Use primary constructor | Block-body constructors are kept for cross-framework consistency and readability. | Designer choice | The type has no invariant logic in the constructor and targets frameworks where primary constructors are fully supported. Suppressed globally for style consistency. |
 | `RCS1021` | Roslynator | Use expression body for lambda | Multi-statement lambdas are kept in block form for readability. | Designer choice | Always safe to ignore; this is a pure style rule with no correctness or performance implications. |
