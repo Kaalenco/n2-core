@@ -1,4 +1,4 @@
-[![.NET Build and test](https://github.com/Kaalenco/n2-core/actions/workflows/dotnet.yml/badge.svg)](https://github.com/Kaalenco/n2-core/actions/workflows/dotnet.yml)
+[![Build Status](https://dev.azure.com/gjkaal/N2%20Vault%20services/_apis/build/status%2FN2.Core%20-%20Publish?branchName=trunk)](https://dev.azure.com/gjkaal/N2%20Vault%20services/_build/latest?definitionId=3&branchName=trunk)
 
 # n2-core
 Basic functionality for any project
