@@ -248,32 +248,7 @@ public static class StringExtensions
             for (int i = 0; i < data.Length; i++)
             {
                 currentLetter = char.ToUpperInvariant(data[i]);
-                currentCode = '\0';
-
-                if (ContainsCharacter("BFPV", currentLetter))
-                {
-                    currentCode = '1';
-                }
-                else if (ContainsCharacter("CGJKQSXZ", currentLetter))
-                {
-                    currentCode = '2';
-                }
-                else if (ContainsCharacter("DT", currentLetter))
-                {
-                    currentCode = '3';
-                }
-                else if (currentLetter == 'L')
-                {
-                    currentCode = '4';
-                }
-                else if (ContainsCharacter("MN", currentLetter))
-                {
-                    currentCode = '5';
-                }
-                else if (currentLetter == 'R')
-                {
-                    currentCode = '6';
-                }
+                currentCode = SoundexCode(currentLetter);
 
                 if (currentCode != previousCode && i > 0 && currentCode != '\0')
                 {
@@ -290,6 +265,39 @@ public static class StringExtensions
         }
 
         return new string(result);
+    }
+
+    /// <summary>
+    /// Returns the Soundex digit for an upper-case letter, or '\0' for letters without a code
+    /// (vowels, H, W, Y) and non-letters.
+    /// </summary>
+    private static char SoundexCode(char letter)
+    {
+        if (ContainsCharacter("BFPV", letter))
+        {
+            return '1';
+        }
+        if (ContainsCharacter("CGJKQSXZ", letter))
+        {
+            return '2';
+        }
+        if (ContainsCharacter("DT", letter))
+        {
+            return '3';
+        }
+        if (letter == 'L')
+        {
+            return '4';
+        }
+        if (ContainsCharacter("MN", letter))
+        {
+            return '5';
+        }
+        if (letter == 'R')
+        {
+            return '6';
+        }
+        return '\0';
     }
 
     private static bool ContainsCharacter(string data, char c)

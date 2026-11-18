@@ -33,32 +33,47 @@ public static class GenericClassExtensions
 
         (PropertyInfo Source, PropertyInfo? Target)[] mappings = _mappingCache.GetOrAdd(
             (typeof(TSource), typeof(TTarget)),
-            static key =>
-            {
-                PropertyInfo[] sourceProperties = key.Item1.GetProperties();
-                PropertyInfo[] targetProperties = key.Item2.GetProperties();
-                return sourceProperties
-                    .Where(sp => sp.CanRead)
-                    .Select(sp =>
-                    {
-                        PropertyInfo? tp = Array.Find(targetProperties, x => string.Equals(x.Name, sp.Name, StringComparison.OrdinalIgnoreCase));
-                        if (tp == null || !tp.CanWrite)
-                            return ((PropertyInfo Source, PropertyInfo? Target))(sp, null);
-#pragma warning disable RCS1146 // Use conditional access
-                        MethodInfo? setMethod = tp.GetSetMethod();
-                        if (setMethod == null || setMethod.IsPrivate || setMethod.IsFamily)
-                            return ((PropertyInfo Source, PropertyInfo? Target))(sp, null);
-#pragma warning restore RCS1146 // Use conditional access
-                        return ((PropertyInfo Source, PropertyInfo? Target))(sp, tp);
-                    })
-                    .ToArray();
-            });
+            static key => BuildMappings(key.Item1, key.Item2));
 
         foreach ((PropertyInfo sp, PropertyInfo? tp) in mappings)
         {
             if (tp != null)
                 tp.SetValue(t, sp.GetValue(s));
         }
+    }
+
+    /// <summary>
+    /// Pairs every readable source property with the writable target property of the same
+    /// name (case-insensitive), or with null when there is none.
+    /// </summary>
+    private static (PropertyInfo Source, PropertyInfo? Target)[] BuildMappings(Type sourceType, Type targetType)
+    {
+        PropertyInfo[] targetProperties = targetType.GetProperties();
+        return sourceType.GetProperties()
+            .Where(sp => sp.CanRead)
+            .Select(sp => (Source: sp, Target: FindWritableTarget(targetProperties, sp.Name)))
+            .ToArray();
+    }
+
+    /// <summary>
+    /// Finds the target property with the given name (case-insensitive) that has a public
+    /// setter; returns null when there is none.
+    /// </summary>
+    private static PropertyInfo? FindWritableTarget(PropertyInfo[] targetProperties, string name)
+    {
+        PropertyInfo? tp = Array.Find(targetProperties, x => string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase));
+        if (tp == null || !tp.CanWrite)
+        {
+            return null;
+        }
+#pragma warning disable RCS1146 // Use conditional access
+        MethodInfo? setMethod = tp.GetSetMethod();
+        if (setMethod == null || setMethod.IsPrivate || setMethod.IsFamily)
+        {
+            return null;
+        }
+#pragma warning restore RCS1146 // Use conditional access
+        return tp;
     }
 
     public static string SerializeForView<T>(this T t)
