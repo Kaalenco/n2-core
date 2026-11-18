@@ -2,7 +2,7 @@
 
 # N2.Core
 
-N2.Core is a multi-target library (`netstandard2.0`, `netstandard2.1`, `net8.0`, `net10.0`) providing reusable infrastructure for ASP.NET Core applications. It covers authentication, command dispatching, HTTP abstractions, geo types, telemetry, and a set of general-purpose extensions — all designed to be composed without taking on heavy framework dependencies.
+N2.Core is a multi-target library (`netstandard2.0`, `netstandard2.1`, `net10.0`, `net11.0`) providing reusable infrastructure for ASP.NET Core applications. It covers authentication, command dispatching, HTTP abstractions, geo types, telemetry, and a set of general-purpose extensions -- all designed to be composed without taking on heavy framework dependencies.
 
 This repository depends on a private Azure Artifacts feed. See [docs/private-feed.md](docs/private-feed.md) for setup instructions.
 
@@ -58,4 +58,4 @@ The command dispatcher (`Conductor`) routes any `IRequest` implementation to its
 
 ## Change log
 
-See [CHANGELOG.md](CHANGELOG.md) for the full history. Current version: **1.6.3**.
+See [CHANGELOG.md](CHANGELOG.md) for the full history. Current version: **2.0.0**.

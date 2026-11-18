@@ -38,8 +38,8 @@ public class HttpResponseProxy : IHttpResponse
         baseResponse.Headers[name] = string.Join(",", values);
     }
 
-    public Task WriteAsJsonAsync<T>(T content, JsonSerializerOptions options, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+    public Task WriteAsJson<T>(T content, JsonSerializerOptions options, CancellationToken cancellationToken) => throw new NotImplementedException();
 
-    public Task WriteAsync(string content, CancellationToken cancellationToken = default) => throw new NotImplementedException();
-    public Task WriteAsync(byte[] content, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+    public Task Write(string content, CancellationToken cancellationToken) => throw new NotImplementedException();
+    public Task Write(byte[] content, CancellationToken cancellationToken) => throw new NotImplementedException();
 }

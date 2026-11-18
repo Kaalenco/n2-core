@@ -78,7 +78,7 @@ Triggers on push to `trunk` when files under `src/N2.*/**` change. PR trigger is
 | # | Stage | Runs on | Description |
 |---|-------|---------|-------------|
 | 1 | **Build and test** | Every push to `trunk` | Restore, build, run unit tests, pack, publish the `packages` artifact. Retains the run for 10 days. |
-| 2 | **Code analysis** | Every push to `trunk` (parallel with Publish) | Runs tests with coverage via `net8.0`, generates an HTML coverage report with ReportGenerator, generates a cyclomatic complexity report with Lizard (`-C 10`), and writes a pipeline summary. |
+| 2 | **Code analysis** | Every push to `trunk` (parallel with Publish) | Runs tests with coverage via `net10.0`, generates an HTML coverage report with ReportGenerator, generates a cyclomatic complexity report with Lizard (`-C 10`), and writes a pipeline summary. |
 | 3 | **Publish** | After Build and test succeeds, `trunk` only | Downloads the `packages` artifact and pushes `.nupkg` files to the `vault-packages` Azure Artifacts feed with `--skip-duplicate`. Retains the run for 365 days. |
 
 ### Pipeline variables
@@ -95,7 +95,7 @@ The `vault-packages` feed URL is hard-coded in the Publish stage. Changing the f
 
 ### Runtime and SDK targets
 
-The library currently targets `netstandard2.0`, `netstandard2.1`, `net8.0`, and `net10.0`. To add or drop a target:
+The library currently targets `netstandard2.0`, `netstandard2.1`, `net10.0`, and `net11.0`; the unit test project targets `net10.0` and `net11.0`. The pipelines install the .NET 11.0.x and 10.0.x SDKs. To add or drop a target:
 
 1. Edit `<TargetFrameworks>` in `src/N2.Core/N2.Core.csproj`.
 2. Add a matching `UseDotNet@2` step in both pipeline YAML files if the new SDK is not already installed.
@@ -104,7 +104,7 @@ The library currently targets `netstandard2.0`, `netstandard2.1`, `net8.0`, and 
 
 ### Package version
 
-The version is set in `src/N2.Core/N2.Core.csproj` under `<Version>`, `<ProductVersion>`, and `<PackageVersion>` (all three must match). Bump these before pushing to `trunk` so the publish pipeline produces a correctly versioned package. The `--skip-duplicate` flag in the Publish stage means pushing an already-published version is a safe no-op, but it will not overwrite the existing package.
+The version is set in `src/N2.Core/N2.Core.csproj` under `<Version>`, `<ProductVersion>`, `<PackageVersion>`, and `<AssemblyVersion>` (all four must match). Bump these before pushing to `trunk` so the publish pipeline produces a correctly versioned package. The `--skip-duplicate` flag in the Publish stage means pushing an already-published version is a safe no-op, but it will not overwrite the existing package.
 
 Add a matching entry to `CHANGELOG.md` (see the format in that file) in the same commit as the version bump.
 

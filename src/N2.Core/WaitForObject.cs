@@ -23,11 +23,11 @@ public sealed class WaitForObject : IDisposable
         Stopwatch sw = Stopwatch.StartNew();
     }
 
-    public async Task<bool> WaitAsync()
+    public async Task<bool> Wait(CancellationToken cancellationToken)
     {
         while (!Finished)
         {
-            await Task.Delay(100);
+            await Task.Delay(100, cancellationToken);
         }
         return !Timeout;
     }

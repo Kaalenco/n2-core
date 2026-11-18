@@ -119,7 +119,7 @@ public abstract class BaseCommandHandler<TQ, TA> : ICommandHandler<TQ, TA>
     private static readonly Action<ILogger, string, Exception?> LogExecutionError =
         LoggerMessage.Define<string>(
             LogLevel.Error,
-            new EventId(2, nameof(WaitForAsync)),
+            new EventId(2, nameof(WaitFor)),
             "Execution failed for request: {Request}");
 
 
@@ -158,19 +158,21 @@ public abstract class BaseCommandHandler<TQ, TA> : ICommandHandler<TQ, TA>
             return ResponseStatus.NoContent;
         }
 
-        _result = HandleRequest(_request);
+        _result = HandleRequestWithTimeout(_request);
         return _result.Status;
     }
 
     /// <summary>
-    /// Invokes the commandhandler, waiting for the result.
+    /// Invokes the commandhandler, waiting for the result at most
+    /// <see cref="TimeoutInMilliSeconds"/>. On timeout the cancellation token passed to
+    /// <see cref="HandleRequest(TQ, CancellationToken)"/> is cancelled.
     /// </summary>
     /// <param name="request">The request.</param>
     /// <returns>A TA.</returns>
     [SuppressMessage("Design",
         "CA1062:Validate arguments of public methods",
         Justification = "Validate checks for null values")]
-    private TA HandleRequest(TQ request)
+    private TA HandleRequestWithTimeout(TQ request)
     {
         ResponseStatus status = Validate(request);
         if (!Guid.TryParse(request.Handle, out Guid handle))
@@ -184,18 +186,53 @@ public abstract class BaseCommandHandler<TQ, TA> : ICommandHandler<TQ, TA>
         }
 
         int timeoutMs = TimeoutInMilliSeconds > 0 ? TimeoutInMilliSeconds : LongTimeout;
-        Task<TA> task = HandleRequestAsync(request);
+#pragma warning disable CA2000 // Dispose objects before losing scope
+        // The source is disposed whenever the handler task has completed (success, fault or
+        // cancellation). Only on timeout, while the handler may still be running and observing
+        // the token, is it cancelled but not disposed; it owns no timer or wait handle, so the
+        // GC reclaims it.
+        CancellationTokenSource timeoutSource = new();
+#pragma warning restore CA2000 // Dispose objects before losing scope
+        Task<TA> task;
+        bool completed = false;
+        try
+        {
+            task = HandleRequest(request, timeoutSource.Token);
+            completed = task.Wait(timeoutMs);
+        }
+        catch
+        {
+            // HandleRequest threw synchronously or the task faulted: nothing observes the token.
+            completed = true;
+            throw;
+        }
+        finally
+        {
+            if (completed)
+            {
+                timeoutSource.Dispose();
+            }
+        }
 
-        if (task.Wait(timeoutMs))
+        if (completed)
         {
             _result = task.Result;
             return task.Result;
         }
 
-        // Note: the handler task continues running to completion on the ThreadPool.
-        // Task.Wait only stops waiting — it does not cancel execution. Any side effects
-        // (DB writes, HTTP calls, etc.) will still occur. True cancellation requires
-        // passing a CancellationToken into HandleRequestAsync.
+        // Task.Wait only stops waiting; cancelling the token asks the handler to stop.
+        // A handler that ignores the token keeps running to completion on the ThreadPool,
+        // and its side effects (DB writes, HTTP calls, etc.) still occur.
+        try
+        {
+            timeoutSource.Cancel();
+        }
+        catch (AggregateException ex)
+        {
+            // A callback registered on the token threw; the request has still timed out.
+            LogExecutionError(Logger, JsonSerializer.Serialize(request, options), ex);
+        }
+
         return (TA)response.CreateNew(
             ResponseStatus.TimeOut,
             $"Could not complete request, timeout occured after {timeoutMs} milliseconds.",
@@ -213,21 +250,23 @@ public abstract class BaseCommandHandler<TQ, TA> : ICommandHandler<TQ, TA>
     }
 
     /// <summary>
-    /// Invokes the command async.
+    /// Handles the request asynchronously.
     /// </summary>
     /// <param name="request">The request.</param>
+    /// <param name="cancellationToken">A token to cancel the operation.</param>
     /// <returns><![CDATA[Task<TA>]]></returns>
-    public abstract Task<TA> HandleRequestAsync(TQ request);
+    public abstract Task<TA> HandleRequest(TQ request, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Waits the for async.
+    /// Validates the request, then handles it and waits for the response.
     /// </summary>
     /// <param name="request">The request.</param>
+    /// <param name="cancellationToken">A token to cancel the operation.</param>
     /// <returns>A Task.</returns>
     [SuppressMessage("Design",
         "CA1062:Validate arguments of public methods",
         Justification = "Validate checks for null values")]
-    public Task<TA> WaitForAsync(TQ request)
+    public Task<TA> WaitFor(TQ request, CancellationToken cancellationToken)
     {
         ResponseStatus status = Validate(request);
         if (!Guid.TryParse(request.Handle, out Guid handle))
@@ -245,7 +284,7 @@ public abstract class BaseCommandHandler<TQ, TA> : ICommandHandler<TQ, TA>
         }
         try
         {
-            return HandleRequestAsync(request);
+            return HandleRequest(request, cancellationToken);
         }
         catch (Exception ex)
         {

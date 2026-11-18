@@ -27,7 +27,7 @@ public class AzureFunctionClient : IAzureFunctionClient
         this.httpClient = httpClient;
     }
 
-    public async Task<TA?> CallAsync<TQ, TA>(string functionPath, TQ request, CancellationToken cancellationToken)
+    public async Task<TA?> CallFunction<TQ, TA>(string functionPath, TQ request, CancellationToken cancellationToken)
     {
         JsonSerializerOptions options = (JsonSerializerOptions)defaultValueService.JsonSerializerOptions;
         string content = JsonSerializer.Serialize(request, options);
@@ -35,7 +35,7 @@ public class AzureFunctionClient : IAzureFunctionClient
         using StringContent httpRequest = new(content, Encoding.UTF8, "application/json");
         httpRequest.Headers.Add("x-functions-key", apiKey);
 
-        HttpResponseMessage response = await httpClient.PostAsync(url, httpRequest, cancellationToken);
+        HttpResponseMessage response = await httpClient.Post(url, httpRequest, cancellationToken);
         if (!response.IsSuccessStatusCode)
         {
             activityLogger.Tag("Error", $"Failed to get response from {url}. Status code: {response.StatusCode}");

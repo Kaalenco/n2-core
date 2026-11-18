@@ -73,7 +73,7 @@ These classes wrap or extend `HttpContext`, `HttpRequest`, or `HttpResponse`. Te
 
 ## Integration-level concern
 
-**`Extensions/HttpClientExtensions.cs`** (`ReadJsonDocumentAsync`) deserialises an `HttpResponseMessage` body. The interesting failure modes — network errors, malformed JSON, unexpected content types — are better covered by integration or contract tests against a real or faked HTTP endpoint.
+**`Extensions/HttpClientExtensions.cs`** (`ReadJsonDocument`) deserialises an `HttpResponseMessage` body. The interesting failure modes -- network errors, malformed JSON, unexpected content types -- are better covered by integration or contract tests against a real or faked HTTP endpoint.
 
 ---
 

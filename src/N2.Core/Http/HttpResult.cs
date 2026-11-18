@@ -78,7 +78,7 @@ public class HttpResult<T> : HttpResult, IHttpResult<T>
             response.SetHeader(HttpHeaderType.ReferenceUri, ReferenceUri.ToString());
         }
 
-        return response.WriteAsJsonAsync(Result, options, token);
+        return response.WriteAsJson(Result, options, token);
     }
 }
 

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netstandard2.1;NET8.0;NET10.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;net10.0;net11.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <LangVersion>12</LangVersion>
@@ -10,7 +10,7 @@
 
     <Title>N2 Core</Title>
     <Company>Kaalenco</Company>
-    <Copyright>(c) 2025 - rights reserved</Copyright>
+    <Copyright>(c) 2026 - rights reserved</Copyright>
     <Authors>gjkaal</Authors>
     <Description>Core functionality for any application</Description>
 
@@ -18,9 +18,10 @@
     <RootNamespace>N2.Core</RootNamespace>
     <ProductName>N2 Core libraries</ProductName>
 
-    <Version>1.6.3</Version>
-    <ProductVersion>1.6.3</ProductVersion>
-    <PackageVersion>1.6.3</PackageVersion>
+    <Version>2.0.0</Version>
+    <ProductVersion>2.0.0</ProductVersion>
+    <PackageVersion>2.0.0</PackageVersion>
+    <AssemblyVersion>2.0.0</AssemblyVersion>
 
     <PackageId>N2.Core</PackageId>
     <PackageType>Dependency</PackageType>
@@ -60,22 +61,41 @@
     <None Include="readme.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
+  <!--
+    Microsoft.Extensions.* versions follow the framework band of the target: 10.0.x for
+    netstandard and net10.0 (keeps net10 consumers on the ASP.NET Core 10 shared framework
+    versions, no NU1605 lift to 11.0.0), 11.0.x for net11.0.
+  -->
+  <PropertyGroup>
+    <MicrosoftExtensionsVersion>10.0.15</MicrosoftExtensionsVersion>
+    <MicrosoftExtensionsVersion Condition="'$(TargetFramework)' == 'net11.0'">11.0.0</MicrosoftExtensionsVersion>
+  </PropertyGroup>
+
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.9" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.7" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.7" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.7" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.7" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="10.0.7" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="10.0.7" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.7" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.7" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.7" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="10.0.7" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="10.0.7" />
-    <PackageReference Include="System.Identitymodel.Tokens.Jwt" Version="8.18.0" />
-    <PackageReference Include="System.IO.Abstractions" Version="22.1.1" />
-    <PackageReference Include="N2.Core.Abstractions" Version="1.7.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.14" />
+    <!-- Transitive pin: Microsoft.AspNetCore.Http 2.3.14 brings WebUtilities 2.3.13 (GHSA-6527-9fp8-r4x6, fixed in 2.3.14). -->
+    <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="2.3.14" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="$(MicrosoftExtensionsVersion)" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="$(MicrosoftExtensionsVersion)" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="$(MicrosoftExtensionsVersion)" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="$(MicrosoftExtensionsVersion)" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="$(MicrosoftExtensionsVersion)" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="$(MicrosoftExtensionsVersion)" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="$(MicrosoftExtensionsVersion)" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="$(MicrosoftExtensionsVersion)" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="$(MicrosoftExtensionsVersion)" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.23.0" />
+    <PackageReference Include="System.IO.Abstractions" Version="23.0.1" />
+    <PackageReference Include="N2.Core.Abstractions" Version="2.0.0" />
+  </ItemGroup>
+
+  <!--
+    In-box in Microsoft.NETCore.App from net11.0 on (PackageOverrides.txt): a direct reference
+    there is pruned and raises NU1510. Reference them for netstandard and net10.0 only.
+  -->
+  <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETStandard' Or '$(TargetFramework)' == 'net10.0'">
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="$(MicrosoftExtensionsVersion)" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="$(MicrosoftExtensionsVersion)" />
   </ItemGroup>
 
 </Project>

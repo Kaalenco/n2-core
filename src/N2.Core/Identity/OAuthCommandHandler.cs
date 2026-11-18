@@ -40,11 +40,12 @@ public class OAuthCommandHandler : BaseCommandHandler<TokenRequest, TokenRespons
     }
 
     /// <summary>
-    /// Handles the request async.
+    /// Handles the token request.
     /// </summary>
     /// <param name="request">The request.</param>
+    /// <param name="cancellationToken">A token to cancel the operation.</param>
     /// <returns>A Task.</returns>
-    public override async Task<TokenResponse> HandleRequestAsync(TokenRequest request)
+    public override async Task<TokenResponse> HandleRequest(TokenRequest request, CancellationToken cancellationToken)
     {
         Guid sid;
         Token? token = null;
@@ -53,7 +54,7 @@ public class OAuthCommandHandler : BaseCommandHandler<TokenRequest, TokenRespons
         token = request.Value;
         Contract.NotNull(token, nameof(token));
         // accept basic
-        Dictionary<string, Func<Token, Task<Guid>>> handlers = new()
+        Dictionary<string, Func<Token, CancellationToken, Task<Guid>>> handlers = new()
         {
             { "basic",  HandleBasicAuthentication },
             { "client_credentials" , HandleClientCredentials },
@@ -64,9 +65,9 @@ public class OAuthCommandHandler : BaseCommandHandler<TokenRequest, TokenRespons
             { "logoff",  HandleLogoff }
         };
 
-        if (handlers.TryGetValue(token!.GrantType, out Func<Token, Task<Guid>>? value))
+        if (handlers.TryGetValue(token!.GrantType, out Func<Token, CancellationToken, Task<Guid>>? value))
         {
-            sid = await value.Invoke(token);
+            sid = await value.Invoke(token, cancellationToken);
         }
         else
         {
@@ -93,16 +94,16 @@ public class OAuthCommandHandler : BaseCommandHandler<TokenRequest, TokenRespons
             return TokenResponse.Failed(ResponseStatus.Unauthorized, "Username or password is invalid");
         }
 
-        Token responseToken = await CreateValidJwt(sid, request.Audience, token.Scope ?? "*");
+        Token responseToken = await CreateValidJwt(sid, request.Audience, token.Scope ?? "*", cancellationToken);
 
         return new TokenResponse(responseToken);
     }
 
-    private async Task<Guid> HandleLogoff(Token token)
+    private async Task<Guid> HandleLogoff(Token token, CancellationToken cancellationToken)
     {
         if (Guid.TryParse(token.RefreshToken, out Guid refresh))
         {
-            await _identityManager.LogoffUser(refresh, token.Scope ?? "*");
+            await _identityManager.LogoffUser(refresh, token.Scope ?? "*", cancellationToken);
         }
         return Guid.Empty;
     }
@@ -113,19 +114,20 @@ public class OAuthCommandHandler : BaseCommandHandler<TokenRequest, TokenRespons
     /// <param name="sid">The security id for the user.</param>
     /// <param name="audience">The audience for the token use.</param>
     /// <param name="scope">The scope for the token claims.</param>
+    /// <param name="cancellationToken">A token to cancel the operation.</param>
     /// <returns></returns>
-    private async Task<Token> CreateValidJwt(Guid sid, string audience, string scope)
+    private async Task<Token> CreateValidJwt(Guid sid, string audience, string scope, CancellationToken cancellationToken)
     {
         Guid refreshToken = Guid.NewGuid();
         DateTime tokenTimeOut = DateTime.UtcNow.AddMinutes(_config.TokenTimeoutInMinutes);
-        Task refreshTask = _identityManager.RegisterRefreshToken(sid, audience, scope, refreshToken, tokenTimeOut);
-        System.Security.Claims.Claim[] claims = await _identityManager.GetClaims(sid, audience, scope);
+        Task refreshTask = _identityManager.RegisterRefreshToken(sid, audience, scope, refreshToken, tokenTimeOut, cancellationToken);
+        System.Security.Claims.Claim[] claims = await _identityManager.GetClaims(sid, audience, scope, cancellationToken);
 
         string newToken = JwtTools.ConvertToJwt(claims, audience, _config.Issuer, _secret, tokenTimeOut);
 
         // if the refresh token registration takes too long,
         // we return the access token without a refresh token
-        if (await Task.WhenAny(refreshTask, Task.Delay(200)) != refreshTask)
+        if (await Task.WhenAny(refreshTask, Task.Delay(200, cancellationToken)) != refreshTask)
         {
             refreshToken = Guid.Empty;
         }
@@ -140,7 +142,7 @@ public class OAuthCommandHandler : BaseCommandHandler<TokenRequest, TokenRespons
         };
     }
 
-    private async Task<Guid> HandleBasicAuthentication(Token token)
+    private async Task<Guid> HandleBasicAuthentication(Token token, CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(token.AccessToken))
         {
@@ -162,14 +164,14 @@ public class OAuthCommandHandler : BaseCommandHandler<TokenRequest, TokenRespons
         {
             throw new UnauthorizedException("No Accesstoken");
         }
-        return await _identityManager.LogonUser(username, password);
+        return await _identityManager.LogonUser(username, password, cancellationToken);
     }
 
-    private async Task<Guid> HandleRefresh(Token token)
+    private async Task<Guid> HandleRefresh(Token token, CancellationToken cancellationToken)
     {
         if (Guid.TryParse(token.RefreshToken, out Guid refresh))
         {
-            return await _identityManager.RefreshUserToken(refresh);
+            return await _identityManager.RefreshUserToken(refresh, cancellationToken);
         }
         else
         {
@@ -177,14 +179,14 @@ public class OAuthCommandHandler : BaseCommandHandler<TokenRequest, TokenRespons
         }
     }
 
-    private async Task<Guid> HandleClientCredentials(Token token)
+    private async Task<Guid> HandleClientCredentials(Token token, CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(token.ClientId) || string.IsNullOrEmpty(token.Scope) || string.IsNullOrEmpty(token.ClientSecret))
         {
             throw new UnauthorizedException("No Credentials");
         }
 
-        var secret = await _identityManager.GetUserSecret(token.ClientId!, token.Scope!);
+        var secret = await _identityManager.GetUserSecret(token.ClientId!, token.Scope!, cancellationToken);
         var secretValue = secret.Value;
         if (string.IsNullOrEmpty(secretValue))
         {
@@ -193,7 +195,7 @@ public class OAuthCommandHandler : BaseCommandHandler<TokenRequest, TokenRespons
 
         if (JwtTools.ValidateTOTP(DateTime.UtcNow, token.ClientSecret!, secretValue!,  (int)_config.ReplayWindowInSeconds))
         {
-            return await _identityManager.LogonUserWithSecret(token.ClientId!, token.ClientSecret!);
+            return await _identityManager.LogonUserWithSecret(token.ClientId!, token.ClientSecret!, cancellationToken);
         }
         else
         {

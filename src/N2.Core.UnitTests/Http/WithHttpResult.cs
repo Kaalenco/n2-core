@@ -165,9 +165,9 @@ public class WithHttpResult
         Assert.AreEqual("W/\"123\"", headers["X-AuditTag"].ToString());
         Assert.AreEqual("https://example.com/api/resource/123", headers["X-ReferenceUri"].ToString());
 
-        // Verify WriteAsJsonAsync was called
+        // Verify WriteAsJson was called
         httpResponseMock.Verify(
-            r => r.WriteAsJsonAsync(testData, options, token),
+            r => r.WriteAsJson(testData, options, token),
             Times.Once);
     }
 }

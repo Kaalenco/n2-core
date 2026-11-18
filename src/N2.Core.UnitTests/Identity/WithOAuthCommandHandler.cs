@@ -20,6 +20,8 @@ public class WithOAuthCommandHandler
     private Mock<IIdentityManager> _identityManager = null!;
     private OAuthConfig _config = null!;
 
+    public TestContext TestContext { get; set; } = null!;
+
     // 64-byte base64-encoded key, same format as JwtToolsTests
     private const string TestSecret = "QDebDB8kUuybqB5bgV6YI8R5bmM+u2AqhpfyGKCSdXtTdlIvzB8uhUEv2+wx4qZ+18Qx/dtu+WtXlNpd9yFkHQ==";
     private const string TotpSharedSecret = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
@@ -57,7 +59,7 @@ public class WithOAuthCommandHandler
     }
 
     [TestMethod]
-    public async Task HandleRequestAsyncReturnsNotAcceptableForUnsupportedGrantType()
+    public async Task HandleRequestReturnsNotAcceptableForUnsupportedGrantType()
     {
         TokenRequest request = new()
         {
@@ -66,13 +68,13 @@ public class WithOAuthCommandHandler
         };
 
         OAuthCommandHandler sut = CreateSut();
-        TokenResponse result = await sut.HandleRequestAsync(request);
+        TokenResponse result = await sut.HandleRequest(request, TestContext.CancellationToken);
 
         Assert.AreEqual(ResponseStatus.NotAcceptable, result.Status);
     }
 
     [TestMethod]
-    public async Task HandleRequestAsyncReturnsUnauthorizedWhenBasicAuthUserNotFound()
+    public async Task HandleRequestReturnsUnauthorizedWhenBasicAuthUserNotFound()
     {
         string credentials = Convert.ToBase64String(Encoding.UTF8.GetBytes("user:wrongpassword"));
         TokenRequest request = new()
@@ -82,17 +84,17 @@ public class WithOAuthCommandHandler
         };
 
         _identityManager
-            .Setup(m => m.LogonUser("user", "wrongpassword"))
+            .Setup(m => m.LogonUser("user", "wrongpassword", It.IsAny<CancellationToken>()))
             .ReturnsAsync(Guid.Empty);
 
         OAuthCommandHandler sut = CreateSut();
-        TokenResponse result = await sut.HandleRequestAsync(request);
+        TokenResponse result = await sut.HandleRequest(request, TestContext.CancellationToken);
 
         Assert.AreEqual(ResponseStatus.Unauthorized, result.Status);
     }
 
     [TestMethod]
-    public async Task HandleRequestAsyncReturnsTokenForValidBasicAuth()
+    public async Task HandleRequestReturnsTokenForValidBasicAuth()
     {
         string credentials = Convert.ToBase64String(Encoding.UTF8.GetBytes("user:correctpassword"));
         Guid userSid = Guid.NewGuid();
@@ -102,21 +104,26 @@ public class WithOAuthCommandHandler
             Value = new Token { GrantType = GrantType.Basic, AccessToken = credentials, Scope = "api" }
         };
 
-        _identityManager.Setup(m => m.LogonUser("user", "correctpassword")).ReturnsAsync(userSid);
-        _identityManager.Setup(m => m.GetClaims(userSid, "http://localhost", "api"))
+        using CancellationTokenSource cts = CancellationTokenSource.CreateLinkedTokenSource(TestContext.CancellationToken);
+        CancellationToken token = cts.Token;
+        _identityManager.Setup(m => m.LogonUser("user", "correctpassword", token)).ReturnsAsync(userSid);
+        _identityManager.Setup(m => m.GetClaims(userSid, "http://localhost", "api", token))
             .ReturnsAsync([new Claim(ClaimTypes.Name, "user")]);
-        _identityManager.Setup(m => m.RegisterRefreshToken(userSid, "http://localhost", "api", It.IsAny<Guid>(), It.IsAny<DateTime>()))
+        _identityManager.Setup(m => m.RegisterRefreshToken(userSid, "http://localhost", "api", It.IsAny<Guid>(), It.IsAny<DateTime>(), token))
             .Returns(Task.FromResult((ICommandResponse)StringResponse.Accept("")));
 
         OAuthCommandHandler sut = CreateSut();
-        TokenResponse result = await sut.HandleRequestAsync(request);
+        TokenResponse result = await sut.HandleRequest(request, token);
 
         Assert.AreEqual(ResponseStatus.Success, result.Status);
         Assert.IsNotNull(result.Value?.AccessToken);
+        _identityManager.Verify(m => m.LogonUser("user", "correctpassword", token), Times.Once);
+        _identityManager.Verify(m => m.GetClaims(userSid, "http://localhost", "api", token), Times.Once);
+        _identityManager.Verify(m => m.RegisterRefreshToken(userSid, "http://localhost", "api", It.IsAny<Guid>(), It.IsAny<DateTime>(), token), Times.Once);
     }
 
     [TestMethod]
-    public async Task HandleRequestAsyncReturnsUnauthorizedForBasicAuthWithNoColon()
+    public async Task HandleRequestReturnsUnauthorizedForBasicAuthWithNoColon()
     {
         // A valid Base64 string that decodes to a value with no colon
         string credentials = Convert.ToBase64String(Encoding.UTF8.GetBytes("usernameonly"));
@@ -127,12 +134,12 @@ public class WithOAuthCommandHandler
         };
 
         OAuthCommandHandler sut = CreateSut();
-        await Assert.ThrowsAsync<UnauthorizedException>(() => sut.HandleRequestAsync(request));
+        await Assert.ThrowsAsync<UnauthorizedException>(() => sut.HandleRequest(request, TestContext.CancellationToken));
 
     }
 
     [TestMethod]
-    public async Task HandleRequestAsyncReturnsUnauthorizedForBasicAuthWithEmptyUsername()
+    public async Task HandleRequestReturnsUnauthorizedForBasicAuthWithEmptyUsername()
     {
         string credentials = Convert.ToBase64String(Encoding.UTF8.GetBytes(":password"));
         TokenRequest request = new()
@@ -143,11 +150,11 @@ public class WithOAuthCommandHandler
 
         OAuthCommandHandler sut = CreateSut();
 
-        await Assert.ThrowsAsync<UnauthorizedException>(() => sut.HandleRequestAsync(request));
+        await Assert.ThrowsAsync<UnauthorizedException>(() => sut.HandleRequest(request, TestContext.CancellationToken));
     }
 
     [TestMethod]
-    public async Task HandleRequestAsyncSplitsBasicAuthAtFirstColonOnly()
+    public async Task HandleRequestSplitsBasicAuthAtFirstColonOnly()
     {
         // Password contains a colon — must not be truncated
         string credentials = Convert.ToBase64String(Encoding.UTF8.GetBytes("user:pass:word"));
@@ -158,20 +165,20 @@ public class WithOAuthCommandHandler
             Value = new Token { GrantType = GrantType.Basic, AccessToken = credentials, Scope = "api" }
         };
 
-        _identityManager.Setup(m => m.LogonUser("user", "pass:word")).ReturnsAsync(userSid);
-        _identityManager.Setup(m => m.GetClaims(userSid, "http://localhost", "api"))
+        _identityManager.Setup(m => m.LogonUser("user", "pass:word", It.IsAny<CancellationToken>())).ReturnsAsync(userSid);
+        _identityManager.Setup(m => m.GetClaims(userSid, "http://localhost", "api", It.IsAny<CancellationToken>()))
             .ReturnsAsync([new Claim(ClaimTypes.Name, "user")]);
-        _identityManager.Setup(m => m.RegisterRefreshToken(userSid, "http://localhost", "api", It.IsAny<Guid>(), It.IsAny<DateTime>()))
+        _identityManager.Setup(m => m.RegisterRefreshToken(userSid, "http://localhost", "api", It.IsAny<Guid>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
             .Returns(Task.FromResult((ICommandResponse)StringResponse.Accept("")));
 
         OAuthCommandHandler sut = CreateSut();
-        TokenResponse result = await sut.HandleRequestAsync(request);
+        TokenResponse result = await sut.HandleRequest(request, TestContext.CancellationToken);
 
         Assert.AreEqual(ResponseStatus.Success, result.Status);
     }
 
     [TestMethod]
-    public async Task HandleRequestAsyncReturnsLogoffForLogoffGrantType()
+    public async Task HandleRequestReturnsLogoffForLogoffGrantType()
     {
         Guid refreshToken = Guid.NewGuid();
         TokenRequest request = new()
@@ -180,17 +187,20 @@ public class WithOAuthCommandHandler
             Value = new Token { GrantType = GrantType.Logoff, RefreshToken = refreshToken.ToString(), Scope = "api" }
         };
 
-        _identityManager.Setup(m => m.LogoffUser(refreshToken, "api")).Returns(Task.FromResult((ICommandResponse)StringResponse.NoContent("")));
+        using CancellationTokenSource cts = CancellationTokenSource.CreateLinkedTokenSource(TestContext.CancellationToken);
+        CancellationToken token = cts.Token;
+        _identityManager.Setup(m => m.LogoffUser(refreshToken, "api", token)).Returns(Task.FromResult((ICommandResponse)StringResponse.NoContent("")));
 
         OAuthCommandHandler sut = CreateSut();
-        TokenResponse result = await sut.HandleRequestAsync(request);
+        TokenResponse result = await sut.HandleRequest(request, token);
+        _identityManager.Verify(m => m.LogoffUser(refreshToken, "api", token), Times.Once);
 
         Assert.AreEqual(ResponseStatus.Accepted, result.Status);
         Assert.AreEqual(GrantType.Logoff, result.Value?.TokenType);
     }
 
     [TestMethod]
-    public async Task HandleRequestAsyncReturnsUnauthorizedWhenRefreshTokenNotFound()
+    public async Task HandleRequestReturnsUnauthorizedWhenRefreshTokenNotFound()
     {
         TokenRequest request = new()
         {
@@ -199,17 +209,17 @@ public class WithOAuthCommandHandler
         };
 
         _identityManager
-            .Setup(m => m.RefreshUserToken(It.IsAny<Guid>()))
+            .Setup(m => m.RefreshUserToken(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Guid.Empty);
 
         OAuthCommandHandler sut = CreateSut();
-        TokenResponse result = await sut.HandleRequestAsync(request);
+        TokenResponse result = await sut.HandleRequest(request, TestContext.CancellationToken);
 
         Assert.AreEqual(ResponseStatus.Unauthorized, result.Status);
     }
 
     [TestMethod]
-    public async Task HandleRequestAsyncReturnsTokenWhenRefreshTokenIsValid()
+    public async Task HandleRequestReturnsTokenWhenRefreshTokenIsValid()
     {
         Guid userSid = Guid.NewGuid();
         Guid refreshToken = Guid.NewGuid();
@@ -219,14 +229,14 @@ public class WithOAuthCommandHandler
             Value = new Token { GrantType = GrantType.RefreshToken, RefreshToken = refreshToken.ToString(), Scope = "api" }
         };
 
-        _identityManager.Setup(m => m.RefreshUserToken(refreshToken)).ReturnsAsync(userSid);
-        _identityManager.Setup(m => m.GetClaims(userSid, "http://localhost", "api"))
+        _identityManager.Setup(m => m.RefreshUserToken(refreshToken, It.IsAny<CancellationToken>())).ReturnsAsync(userSid);
+        _identityManager.Setup(m => m.GetClaims(userSid, "http://localhost", "api", It.IsAny<CancellationToken>()))
             .ReturnsAsync([new Claim(ClaimTypes.Name, "user")]);
-        _identityManager.Setup(m => m.RegisterRefreshToken(userSid, "http://localhost", "api", It.IsAny<Guid>(), It.IsAny<DateTime>()))
+        _identityManager.Setup(m => m.RegisterRefreshToken(userSid, "http://localhost", "api", It.IsAny<Guid>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
             .Returns(Task.FromResult((ICommandResponse)StringResponse.Accept("")));
 
         OAuthCommandHandler sut = CreateSut();
-        TokenResponse result = await sut.HandleRequestAsync(request);
+        TokenResponse result = await sut.HandleRequest(request, TestContext.CancellationToken);
 
         Assert.AreEqual(ResponseStatus.Success, result.Status);
         Assert.IsNotNull(result.Value?.AccessToken);
@@ -242,7 +252,7 @@ public class WithOAuthCommandHandler
         };
 
         OAuthCommandHandler sut = CreateSut();
-        await Assert.ThrowsAsync<UnauthorizedException>(() => sut.HandleRequestAsync(request));
+        await Assert.ThrowsAsync<UnauthorizedException>(() => sut.HandleRequest(request, TestContext.CancellationToken));
     }
 
     [TestMethod]
@@ -255,7 +265,7 @@ public class WithOAuthCommandHandler
         };
 
         OAuthCommandHandler sut = CreateSut();
-        await Assert.ThrowsAsync<UnauthorizedException>(() => sut.HandleRequestAsync(request));
+        await Assert.ThrowsAsync<UnauthorizedException>(() => sut.HandleRequest(request, TestContext.CancellationToken));
     }
 
     [TestMethod]
@@ -268,14 +278,14 @@ public class WithOAuthCommandHandler
         };
 
         OAuthCommandHandler sut = CreateSut();
-        await Assert.ThrowsAsync<UnauthorizedException>(() => sut.HandleRequestAsync(request));
+        await Assert.ThrowsAsync<UnauthorizedException>(() => sut.HandleRequest(request, TestContext.CancellationToken));
     }
 
     [TestMethod]
     public async Task HandleClientCredentials_EmptyStoredSecret_ThrowsUnauthorizedException()
     {
         _identityManager
-            .Setup(m => m.GetUserSecret("client1", "api"))
+            .Setup(m => m.GetUserSecret("client1", "api", It.IsAny<CancellationToken>()))
             .ReturnsAsync(StringResponse.Accept(""));
 
         TokenRequest request = new()
@@ -285,7 +295,7 @@ public class WithOAuthCommandHandler
         };
 
         OAuthCommandHandler sut = CreateSut();
-        await Assert.ThrowsAsync<UnauthorizedException>(() => sut.HandleRequestAsync(request));
+        await Assert.ThrowsAsync<UnauthorizedException>(() => sut.HandleRequest(request, TestContext.CancellationToken));
     }
 
     [TestMethod]
@@ -293,7 +303,7 @@ public class WithOAuthCommandHandler
     {
         string wrongHash = JwtTools.TOTP(DateTime.UtcNow, TestSecret, OAuthConfig.DefaultReplayWindow);
         _identityManager
-            .Setup(m => m.GetUserSecret("client1", "api"))
+            .Setup(m => m.GetUserSecret("client1", "api", It.IsAny<CancellationToken>()))
             .ReturnsAsync(StringResponse.Accept(TotpSharedSecret));
 
         TokenRequest request = new()
@@ -303,7 +313,7 @@ public class WithOAuthCommandHandler
         };
 
         OAuthCommandHandler sut = CreateSut();
-        TokenResponse result = await sut.HandleRequestAsync(request);
+        TokenResponse result = await sut.HandleRequest(request, TestContext.CancellationToken);
 
         Assert.AreEqual(ResponseStatus.Unauthorized, result.Status);
     }
@@ -313,11 +323,13 @@ public class WithOAuthCommandHandler
     {
         string validHash = JwtTools.TOTP(DateTime.UtcNow, TotpSharedSecret, OAuthConfig.DefaultReplayWindow);
         Guid userSid = Guid.NewGuid();
-        _identityManager.Setup(m => m.GetUserSecret("client1", "api")).ReturnsAsync(StringResponse.Accept(TotpSharedSecret));
-        _identityManager.Setup(m => m.LogonUserWithSecret("client1", validHash)).ReturnsAsync(userSid);
-        _identityManager.Setup(m => m.GetClaims(userSid, "http://localhost", "api"))
+        using CancellationTokenSource cts = CancellationTokenSource.CreateLinkedTokenSource(TestContext.CancellationToken);
+        CancellationToken token = cts.Token;
+        _identityManager.Setup(m => m.GetUserSecret("client1", "api", token)).ReturnsAsync(StringResponse.Accept(TotpSharedSecret));
+        _identityManager.Setup(m => m.LogonUserWithSecret("client1", validHash, token)).ReturnsAsync(userSid);
+        _identityManager.Setup(m => m.GetClaims(userSid, "http://localhost", "api", token))
             .ReturnsAsync([new Claim(ClaimTypes.Name, "client1")]);
-        _identityManager.Setup(m => m.RegisterRefreshToken(userSid, "http://localhost", "api", It.IsAny<Guid>(), It.IsAny<DateTime>()))
+        _identityManager.Setup(m => m.RegisterRefreshToken(userSid, "http://localhost", "api", It.IsAny<Guid>(), It.IsAny<DateTime>(), token))
             .Returns(Task.FromResult((ICommandResponse)StringResponse.Accept("")));
 
         TokenRequest request = new()
@@ -327,9 +339,11 @@ public class WithOAuthCommandHandler
         };
 
         OAuthCommandHandler sut = CreateSut();
-        TokenResponse result = await sut.HandleRequestAsync(request);
+        TokenResponse result = await sut.HandleRequest(request, token);
 
         Assert.AreEqual(ResponseStatus.Success, result.Status);
         Assert.IsNotNull(result.Value?.AccessToken);
+        _identityManager.Verify(m => m.GetUserSecret("client1", "api", token), Times.Once);
+        _identityManager.Verify(m => m.LogonUserWithSecret("client1", validHash, token), Times.Once);
     }
 }

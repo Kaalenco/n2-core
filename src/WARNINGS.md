@@ -4,7 +4,7 @@ This document explains each warning suppressed via `<NoWarn>` in
 `N2.Core/N2.Core.csproj`.
 
 Several analyser rules that apply to concrete implementations or to specific framework versions
-are intentionally silenced because this library targets `netstandard2.0` through `net10.0` and
+are intentionally silenced because this library targets `netstandard2.0` through `net11.0` and
 exposes a stable public API surface across all of them.
 
 | Warning | Analyser | Name | Reason for suppression | Severity | Safe to ignore when |

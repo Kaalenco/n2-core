@@ -3,25 +3,27 @@ namespace N2.Core.UnitTests;
 [TestClass]
 public class UsingWaitForObject
 {
+    public TestContext TestContext { get; set; } = null!;
+
     [TestMethod]
-    public async Task WaitAsyncReturnsTrueWhenConditionIsImmediatelyAvailable()
+    public async Task WaitReturnsTrueWhenConditionIsImmediatelyAvailable()
     {
         object available = new();
         using WaitForObject sut = new(() => available, timeout: 5);
-        bool result = await sut.WaitAsync();
+        bool result = await sut.Wait(TestContext.CancellationToken);
         Assert.IsTrue(result);
     }
 
     [TestMethod]
-    public async Task WaitAsyncReturnsFalseWhenConditionNeverMet()
+    public async Task WaitReturnsFalseWhenConditionNeverMet()
     {
         using WaitForObject sut = new(() => null, timeout: 1);
-        bool result = await sut.WaitAsync();
+        bool result = await sut.Wait(TestContext.CancellationToken);
         Assert.IsFalse(result);
     }
 
     [TestMethod]
-    public async Task WaitAsyncReturnsTrueWhenConditionEventuallyMet()
+    public async Task WaitReturnsTrueWhenConditionEventuallyMet()
     {
         int counter = 0;
         using WaitForObject sut = new(() => counter >= 1 ? (object)counter : null, timeout: 5);
@@ -32,12 +34,12 @@ public class UsingWaitForObject
             Interlocked.Increment(ref counter);
         });
 
-        bool result = await sut.WaitAsync();
+        bool result = await sut.Wait(TestContext.CancellationToken);
         Assert.IsTrue(result);
     }
 
     [TestMethod]
-    public async Task WaitAsyncReturnsFalseWhenConditionMetAfterTimeout()
+    public async Task WaitReturnsFalseWhenConditionMetAfterTimeout()
     {
         int counter = 0;
         using WaitForObject sut = new(() => counter >= 1 ? (object)counter : null, timeout: 1);
@@ -48,7 +50,7 @@ public class UsingWaitForObject
             Interlocked.Increment(ref counter);
         });
 
-        bool result = await sut.WaitAsync();
+        bool result = await sut.Wait(TestContext.CancellationToken);
         Assert.IsFalse(result);
     }
 

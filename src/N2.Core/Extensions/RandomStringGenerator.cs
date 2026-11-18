@@ -16,7 +16,7 @@ public static class RandomStringGenerator
         // The characters that are allowed in the random string Characters
         // that are easily confused are not part of the set.
         const string chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET
         return new string([..
             Enumerable.Repeat(chars, length)
             .Select(s => s[RandomNumberGenerator.GetInt32(s.Length)])]);
@@ -27,8 +27,8 @@ public static class RandomStringGenerator
 #endif
     }
 
-#if NETSTANDARD2_1_OR_GREATER
-    // This method is not needed in .NET Standard 2.1 or later because RandomNumberGenerator.GetInt32 is available.
+#if NETSTANDARD2_1_OR_GREATER || NET
+    // This method is not needed on .NET Standard 2.1 or .NET (5+) because RandomNumberGenerator.GetInt32 is available.
 #else
     internal static Int32 GetInt32(int maxValue)
     {

@@ -48,10 +48,10 @@ public class WithAzureFunctionClient
     {
         using var response = new HttpResponseMessage(HttpStatusCode.InternalServerError);
         _httpClient
-            .Setup(h => h.PostAsync(It.IsAny<Uri>(), It.IsAny<HttpContent>(), It.IsAny<CancellationToken>()))
+            .Setup(h => h.Post(It.IsAny<Uri>(), It.IsAny<HttpContent>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
-        string? result = await CreateSut().CallAsync<object, string>("test", new { }, CancellationToken.None);
+        string? result = await CreateSut().CallFunction<object, string>("test", new { }, CancellationToken.None);
 
         Assert.IsNull(result);
     }
@@ -64,10 +64,10 @@ public class WithAzureFunctionClient
             Content = new StringContent(string.Empty)
         };
         _httpClient
-            .Setup(h => h.PostAsync(It.IsAny<Uri>(), It.IsAny<HttpContent>(), It.IsAny<CancellationToken>()))
+            .Setup(h => h.Post(It.IsAny<Uri>(), It.IsAny<HttpContent>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
-        string? result = await CreateSut().CallAsync<object, string>("test", new { }, CancellationToken.None);
+        string? result = await CreateSut().CallFunction<object, string>("test", new { }, CancellationToken.None);
 
         Assert.IsNull(result);
     }
@@ -81,11 +81,11 @@ public class WithAzureFunctionClient
             Content = new StringContent(responseBody)
         };
         _httpClient
-            .Setup(h => h.PostAsync(It.IsAny<Uri>(), It.IsAny<HttpContent>(), It.IsAny<CancellationToken>()))
+            .Setup(h => h.Post(It.IsAny<Uri>(), It.IsAny<HttpContent>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
    
 
-        string? result = await CreateSut().CallAsync<object, string>("test", new { }, CancellationToken.None);
+        string? result = await CreateSut().CallFunction<object, string>("test", new { }, CancellationToken.None);
 
         Assert.AreEqual(responseBody, result);
     }
@@ -100,10 +100,10 @@ public class WithAzureFunctionClient
         };
 
         _httpClient
-            .Setup(h => h.PostAsync(It.IsAny<Uri>(), It.IsAny<HttpContent>(), It.IsAny<CancellationToken>()))
+            .Setup(h => h.Post(It.IsAny<Uri>(), It.IsAny<HttpContent>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
-        TestPayload? result = await CreateSut().CallAsync<object, TestPayload>("test", new { }, CancellationToken.None);
+        TestPayload? result = await CreateSut().CallFunction<object, TestPayload>("test", new { }, CancellationToken.None);
 
         Assert.IsNotNull(result);
         Assert.AreEqual(payload.Name, result.Name);
@@ -119,16 +119,16 @@ public class WithAzureFunctionClient
             Content = new StringContent("response")
         };
         _httpClient
-            .Setup(h => h.PostAsync(It.IsAny<Uri>(), It.IsAny<HttpContent>(), It.IsAny<CancellationToken>()))
+            .Setup(h => h.Post(It.IsAny<Uri>(), It.IsAny<HttpContent>(), It.IsAny<CancellationToken>()))
             .Callback<Uri, HttpContent, CancellationToken>((_, content, _) =>
             {
                 captured = new HttpRequestMessage { Content = content };
             })
             .ReturnsAsync(response);
 
-        await CreateSut().CallAsync<object, string>("fn", new { }, CancellationToken.None);
+        await CreateSut().CallFunction<object, string>("fn", new { }, CancellationToken.None);
 
-        _httpClient.Verify(h => h.PostAsync(
+        _httpClient.Verify(h => h.Post(
             It.Is<Uri>(u => u.ToString().Contains("/api/fn")),
             It.IsAny<HttpContent>(),
             It.IsAny<CancellationToken>()), Times.Once);

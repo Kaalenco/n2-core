@@ -7,7 +7,7 @@ public static class RandomNames
 
     public static string CreateRandomName()
     {
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET
         return names[RandomNumberGenerator.GetInt32(names.Length)];
 #else
         return names[Extensions.RandomStringGenerator.GetInt32(names.Length)];

@@ -37,6 +37,6 @@ public class HttpRequestProxy : IHttpRequest
     public IEnumerable<KeyValuePair<string, StringValues>>? Query => baseRequest.Query;
 
 
-    public Task<string> ReadAsStringAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
+    public Task<string> ReadAsString(CancellationToken cancellationToken) => throw new NotImplementedException();
 }
 
