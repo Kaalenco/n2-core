@@ -180,12 +180,12 @@ stages:
         summaryFileLocation: reports/coverage/Cobertura.xml
         reportDirectory: reports/coverage
 
-    - bash: pip install lizard
+    - bash: pip install lizard==1.25.0
       displayName: Install lizard
 
     - bash: |
         mkdir -p reports/complexity
-        lizard src/ -x "*.UnitTests" -C 10 --html > reports/complexity/index.html
+        lizard src/ -x "*.UnitTests/*" -C 10 --html > reports/complexity/index.html
       displayName: Generate complexity report
 
     - bash: |
