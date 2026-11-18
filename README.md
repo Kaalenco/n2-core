@@ -6,6 +6,13 @@ N2.Core is a multi-target library (`netstandard2.0`, `netstandard2.1`, `net10.0`
 
 This repository depends on a private Azure Artifacts feed. See [docs/private-feed.md](docs/private-feed.md) for setup instructions.
 
+## Upgrading to 2.0
+
+2.0.0 is a breaking release on N2.Core.Abstractions 2.0.0: renamed members, required cancellation
+tokens (including the `BaseCommandHandler.HandleRequest` override), cancellation of timed-out
+handlers on the synchronous command path, and `net8.0` replaced by `net10.0`/`net11.0`. Follow
+[MIGRATION-2.0.md](MIGRATION-2.0.md) for the upgrade checklist and before/after examples.
+
 ## Functional areas
 
 ### Commands (`N2.Core.Commands`)
