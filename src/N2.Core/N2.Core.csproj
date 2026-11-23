@@ -67,14 +67,13 @@
     versions, no NU1605 lift to 11.0.0), 11.0.x for net11.0.
   -->
   <PropertyGroup>
-    <MicrosoftExtensionsVersion>10.0.15</MicrosoftExtensionsVersion>
+    <MicrosoftExtensionsVersion>11.0.0</MicrosoftExtensionsVersion>
     <MicrosoftExtensionsVersion Condition="'$(TargetFramework)' == 'net11.0'">11.0.0</MicrosoftExtensionsVersion>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.14" />
-    <!-- Transitive pin: Microsoft.AspNetCore.Http 2.3.14 brings WebUtilities 2.3.13 (GHSA-6527-9fp8-r4x6, fixed in 2.3.14). -->
-    <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="2.3.14" />
+  <ItemGroup Label="Microsoft Extensions">
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="$(MicrosoftExtensionsVersion)" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="$(MicrosoftExtensionsVersion)" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="$(MicrosoftExtensionsVersion)" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="$(MicrosoftExtensionsVersion)" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="$(MicrosoftExtensionsVersion)" />
@@ -84,18 +83,27 @@
     <PackageReference Include="Microsoft.Extensions.Logging" Version="$(MicrosoftExtensionsVersion)" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="$(MicrosoftExtensionsVersion)" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="$(MicrosoftExtensionsVersion)" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.23.0" />
-    <PackageReference Include="System.IO.Abstractions" Version="23.0.1" />
-    <PackageReference Include="N2.Core.Abstractions" Version="2.0.0" />
   </ItemGroup>
 
-  <!--
-    In-box in Microsoft.NETCore.App from net11.0 on (PackageOverrides.txt): a direct reference
-    there is pruned and raises NU1510. Reference them for netstandard and net10.0 only.
-  -->
-  <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETStandard' Or '$(TargetFramework)' == 'net10.0'">
-    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="$(MicrosoftExtensionsVersion)" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="$(MicrosoftExtensionsVersion)" />
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.14" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.23.0" />
+    <PackageReference Include="System.IO.Abstractions" Version="23.1.0" />
+    <PackageReference Include="N2.Core.Abstractions" Version="3.0.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
+    <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="10.0.15" />
+
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net11.0'">
+    <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="11.0.0" />
+  </ItemGroup>
+
+  
+  <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETStandard'">
+    <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="2.3.14" />
   </ItemGroup>
 
 </Project>
