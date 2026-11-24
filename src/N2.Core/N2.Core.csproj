@@ -18,10 +18,10 @@
     <RootNamespace>N2.Core</RootNamespace>
     <ProductName>N2 Core libraries</ProductName>
 
-    <Version>2.0.0</Version>
-    <ProductVersion>2.0.0</ProductVersion>
-    <PackageVersion>2.0.0</PackageVersion>
-    <AssemblyVersion>2.0.0</AssemblyVersion>
+    <Version>3.0.0</Version>
+    <ProductVersion>3.0.0</ProductVersion>
+    <PackageVersion>3.0.0</PackageVersion>
+    <AssemblyVersion>3.0.0</AssemblyVersion>
 
     <PackageId>N2.Core</PackageId>
     <PackageType>Dependency</PackageType>
@@ -67,7 +67,7 @@
     versions, no NU1605 lift to 11.0.0), 11.0.x for net11.0.
   -->
   <PropertyGroup>
-    <MicrosoftExtensionsVersion>11.0.0</MicrosoftExtensionsVersion>
+    <MicrosoftExtensionsVersion>10.0.15</MicrosoftExtensionsVersion>
     <MicrosoftExtensionsVersion Condition="'$(TargetFramework)' == 'net11.0'">11.0.0</MicrosoftExtensionsVersion>
   </PropertyGroup>
 
@@ -94,7 +94,6 @@
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
     <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="10.0.15" />
-
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net11.0'">
