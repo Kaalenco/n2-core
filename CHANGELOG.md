@@ -1,5 +1,22 @@
 # Changelog
 
+## 3.0.1 - 2026-11-24
+
+Version unification release (N2 unify 3.0.1). No API changes.
+
+- All N2.Core packages move to version 3.0.1 (`Version`, `PackageVersion`, `ProductVersion`,
+  `FileVersion` 3.0.1.0; `AssemblyVersion` stays 3.0.0.0).
+- Target frameworks unchanged: `netstandard2.0`, `netstandard2.1`, `net10.0`, `net11.0`.
+- Dependencies verified as current per framework band (Microsoft.Extensions.* 10.0.15 for
+  netstandard and net10.0, 11.0.0 for net11.0); no version changes were needed.
+- Still references N2.Core.Abstractions 3.0.0 until Abstractions 3.0.1 is published
+  (TODO in the project files).
+- Build, test and publish moved from Azure Pipelines to GitHub Actions
+  (`.github/workflows/dotnet.yml`); pushes to `trunk` publish to the `vault-packages` feed with
+  `--skip-duplicate`. `src/nuget.config` now uses package source mapping (N2.* from
+  `vault-packages`, everything else from nuget.org).
+
+
 ## 2.0.0 - 2026-11-18
 
 Major release on N2.Core.Abstractions 2.0.0. Every asynchronous member takes a required
