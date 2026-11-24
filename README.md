@@ -59,7 +59,7 @@ The command dispatcher (`Conductor`) routes any `IRequest` implementation to its
 
 | Document | Description |
 |----------|-------------|
-| [src/DEVELOPER-GUIDE.md](src/DEVELOPER-GUIDE.md) | Developer guide — build commands, CI/CD pipelines, and maintenance notes. |
+| [src/DEVELOPER-GUIDE.md](src/DEVELOPER-GUIDE.md) | Developer guide — build commands, CI/CD, and maintenance notes. |
 | [src/WARNINGS.md](src/WARNINGS.md) | Suppressed analyser warnings — lists every `<NoWarn>` entry with severity rating and guidance. |
 | [CHANGELOG.md](CHANGELOG.md) | Full version history. |
 
