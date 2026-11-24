@@ -18,10 +18,10 @@
     <RootNamespace>N2.Core</RootNamespace>
     <ProductName>N2 Core libraries</ProductName>
 
-    <Version>3.0.1</Version>
-    <ProductVersion>3.0.1</ProductVersion>
-    <PackageVersion>3.0.1</PackageVersion>
-    <FileVersion>3.0.1.0</FileVersion>
+    <Version>3.0.2</Version>
+    <ProductVersion>3.0.2</ProductVersion>
+    <PackageVersion>3.0.2</PackageVersion>
+    <FileVersion>3.0.2.0</FileVersion>
     <AssemblyVersion>3.0.0.0</AssemblyVersion>
 
     <PackageId>N2.Core</PackageId>

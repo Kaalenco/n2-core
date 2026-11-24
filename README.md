@@ -65,4 +65,4 @@ The command dispatcher (`Conductor`) routes any `IRequest` implementation to its
 
 ## Change log
 
-See [CHANGELOG.md](CHANGELOG.md) for the full history. Current version: **3.0.1**.
+See [CHANGELOG.md](CHANGELOG.md) for the full history. Current version: **3.0.2**.

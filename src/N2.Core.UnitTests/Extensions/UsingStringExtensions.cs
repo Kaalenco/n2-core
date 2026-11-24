@@ -100,6 +100,20 @@ public class UsingStringExtensions
     [DataRow("ABACADABRA", "A123")]
     [DataRow("Kaal", "K400")]
     [DataRow("Balt", "B430")]
+    [DataRow("Ashcraft", "A261")]
+    [DataRow("Ashcroft", "A261")]
+    [DataRow("Tymczak", "T522")]
+    [DataRow("Pfister", "P236")]
+    [DataRow("Honeyman", "H555")]
+    [DataRow("Robert", "R163")]
+    [DataRow("Rupert", "R163")]
+    [DataRow("Lee", "L000")]
+    [DataRow("gjkaal", "G400")]
+    [DataRow("1_gjkaal", "G400")]
+    [DataRow("g-j.kaal", "G400")]
+    [DataRow("", "0000")]
+    [DataRow("123", "0000")]
+    [DataRow(null, "0000")]
     public void SoundexReturnsExpectedCode(string value, string expected)
     {
         string soundex = value.Soundex();

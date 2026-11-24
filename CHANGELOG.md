@@ -1,5 +1,20 @@
 # Changelog
 
+## 3.0.2 - 2026-11-24
+
+Fix release for N2.Core only. The other N2 packages stay at 3.0.1. No API changes.
+
+- `StringExtensions.Soundex` follows the classic algorithm (same results as SQL Server SOUNDEX for
+  A-Z words):
+  - `H` and `W` no longer separate two letters with the same code (`Ashcraft` is `A261`, was
+    `A226`).
+  - Characters that are not A-Z letters are ignored, also at the start of the word (`1_gjkaal` is
+    `G400`); the first character was copied unchecked before.
+  - The code of the first letter suppresses an equal following code (`Pfister` is `P236`).
+  - Null, empty or letterless input still returns `0000`.
+  - Codes can change for words with `H`/`W` between equal codes or with non-letter characters:
+    recompute any stored Soundex values.
+
 ## 3.0.1 - 2026-11-24
 
 Version unification release (N2 unify 3.0.1). No API changes.

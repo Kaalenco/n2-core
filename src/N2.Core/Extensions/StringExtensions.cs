@@ -230,41 +230,71 @@ public static class StringExtensions
     /// <summary>
     /// A Soundex code is a hashing mechanism that defines a code for the way a word
     /// is pronounced. It provides the possibility to compare two word equality without
-    /// the need to be totally equal.
+    /// the need to be totally equal. Follows the classic algorithm (same results as
+    /// SQL Server SOUNDEX for A-Z words): H and W are transparent, vowels separate equal
+    /// codes, and characters that are not A-Z letters are ignored.
     /// </summary>
-    /// <param name="data">The oroiginal word</param>
-    /// <returns>A soundex string</returns>
+    /// <param name="data">The original word</param>
+    /// <returns>A soundex string: a letter and three digits, or "0000" when there is no letter</returns>
     /// <remarks> From : https://stackoverflow.com/questions/11121936/dotnet-soundex-function</remarks>
     public static string Soundex(this string data)
     {
         char[] result = ['0', '0', '0', '0',];
 
-        if (data != null && data.Length > 0)
+        if (string.IsNullOrEmpty(data))
         {
-            char previousCode = '\0', currentCode = '\0', currentLetter = '\0';
-            int n = 0;
-            result[n++] = char.ToUpperInvariant(data[0]);
+            return new string(result);
+        }
 
-            for (int i = 0; i < data.Length; i++)
+        int n = 0;
+        char previousCode = '\0';
+
+        foreach (char c in data)
+        {
+            char letter = SoundexLetter(c);
+            if (letter == '\0')
             {
-                currentLetter = char.ToUpperInvariant(data[i]);
-                currentCode = SoundexCode(currentLetter);
+                // Not an A-Z letter: ignored, also at the start of the word.
+                continue;
+            }
 
-                if (currentCode != previousCode && i > 0 && currentCode != '\0')
-                {
-                    result[n++] = currentCode;
-                }
+            if (n == 0)
+            {
+                // The first letter is kept as is; its code only suppresses an equal follower.
+                result[n++] = letter;
+                previousCode = SoundexCode(letter);
+                continue;
+            }
 
-                if (n == 4)
-                {
-                    break;
-                }
+            if (letter == 'H' || letter == 'W')
+            {
+                // H and W do not separate two letters with the same code (Ashcraft = A261).
+                continue;
+            }
 
-                previousCode = currentCode;
+            char code = SoundexCode(letter);
+            if (code != '\0' && code != previousCode)
+            {
+                result[n++] = code;
+            }
+
+            // Vowels and Y have no code and do separate equal codes.
+            previousCode = code;
+
+            if (n == 4)
+            {
+                break;
             }
         }
 
         return new string(result);
+    }
+
+    /// <summary>Returns the upper-case A-Z letter for <paramref name="c"/>, or '\0' when it is none.</summary>
+    private static char SoundexLetter(char c)
+    {
+        char letter = char.ToUpperInvariant(c);
+        return letter >= 'A' && letter <= 'Z' ? letter : '\0';
     }
 
     /// <summary>
