@@ -43,7 +43,11 @@ jobs:
     # (a separate dotnet pack fails with NU5026 on this multi-target project).
     - name: Build
       run: dotnet build src --no-restore --configuration Release
+    # WithSettingsService reads Env:Secret from the environment variable ENV__SECRET__VALUE,
+    # supplied by the repository secret of the same name (replaces the old secrets-to-env action).
     - name: Test
+      env:
+        ENV__SECRET__VALUE: ${{ secrets.ENV__SECRET__VALUE }}
       run: dotnet test src --no-build --configuration Release --verbosity normal
     # Publish to vault-packages on pushes to trunk only (not on pull requests). The feed credential
     # comes from the authenticated src/nuget.config; Azure Artifacts ignores the api-key value.
