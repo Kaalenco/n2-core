@@ -18,10 +18,11 @@
     <RootNamespace>N2.Core</RootNamespace>
     <ProductName>N2 Core libraries</ProductName>
 
-    <Version>3.0.0</Version>
-    <ProductVersion>3.0.0</ProductVersion>
-    <PackageVersion>3.0.0</PackageVersion>
-    <AssemblyVersion>3.0.0</AssemblyVersion>
+    <Version>3.0.1</Version>
+    <ProductVersion>3.0.1</ProductVersion>
+    <PackageVersion>3.0.1</PackageVersion>
+    <FileVersion>3.0.1.0</FileVersion>
+    <AssemblyVersion>3.0.0.0</AssemblyVersion>
 
     <PackageId>N2.Core</PackageId>
     <PackageType>Dependency</PackageType>
@@ -89,6 +90,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.14" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.23.0" />
     <PackageReference Include="System.IO.Abstractions" Version="23.1.0" />
+    <!-- TODO bump to 3.0.1 after Abstractions 3.0.1 is published -->
     <PackageReference Include="N2.Core.Abstractions" Version="3.0.0" />
   </ItemGroup>
 
