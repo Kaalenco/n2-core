@@ -22,8 +22,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="11.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="11.0.0" />
     <PackageReference Include="System.IO.Abstractions" Version="23.1.0" />
-    <!-- TODO bump to 3.0.1 after Abstractions 3.0.1 is published -->
-    <PackageReference Include="N2.Core.Abstractions" Version="3.0.0" />
+    <PackageReference Include="N2.Core.Abstractions" Version="3.0.1" />
   </ItemGroup>
 
   <!-- In-box from net11.0 on; a direct reference there raises NU1510. -->
